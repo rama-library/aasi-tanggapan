@@ -38,7 +38,7 @@
                             <td>{{ $pasal->pasal }}</td>
                             <td>{{ $pasal->penjelasan }}</td>
                             <td>
-                                <a href="{{ route('pasal.edit', $pasal->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                                <a href="{{ route('pasal.edit', ['document' => $document->slug, 'pasal' => $pasal->id]) }}" class="btn btn-warning btn-sm">Edit</a>
                                 <form id="delete-form-{{ $pasal->id }}" action="{{ route('pasal.destroy', $pasal->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')

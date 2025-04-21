@@ -33,8 +33,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('documents/{document}/pasal', [AdminPasalController::class, 'index'])->name('pasal.index');
         Route::get('documents/{document:slug}/pasal/create', [AdminPasalController::class, 'create'])->name('pasal.create');
         Route::post('documents/{document}/pasal', [AdminPasalController::class, 'store'])->name('pasal.store');
-        Route::get('pasal/{pasal}/edit', [AdminPasalController::class, 'edit'])->name('pasal.edit');
-        Route::put('pasal/{pasal}', [AdminPasalController::class, 'update'])->name('pasal.update');
+        Route::get('documents/{document:slug}/pasal/{pasal}/edit', [AdminPasalController::class, 'edit'])->name('pasal.edit');
+        Route::put('documents/{document:slug}/pasal/{pasal}', [AdminPasalController::class, 'update'])->name('pasal.update');
         Route::delete('pasal/{pasal}', [AdminPasalController::class, 'destroy'])->name('pasal.destroy');
 
         Route::get('users/{user}/change-password', [AdminAccountController::class, 'changePassword'])->name('users.change-password');

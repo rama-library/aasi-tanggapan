@@ -2,12 +2,12 @@
 
 <input type="hidden" name="doc_id" value="{{ $doc_id ?? $pasal->doc_id ?? '' }}">
 
-<div class="col-md-6">
+<div class="col-md-12 mb-3">
     <label for="pasal" class="form-label">Pasal</label>
     <input type="text" class="form-control" name="pasal" value="{{ old('pasal', $pasal->pasal ?? '') }}" autofocus>
 </div>
 
-<div class="col-md-6">
+<div class="col-md-12 mb-3">
     <label for="penjelasan" class="form-label">Penjelasan</label>
     <textarea class="form-control" name="penjelasan" rows="4" required>{{ old('penjelasan', $pasal->penjelasan ?? '') }}</textarea>
 </div>

@@ -70,16 +70,15 @@ class AdminPasalController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Pasal $pasal)
+    public function edit(Document $document, Pasal $pasal)
     {
-        $document = Document::findOrFail($pasal->doc_id);
-        return view('pasal.edit', compact('pasal', 'document'));
+        return view('pasal.edit', compact('document', 'pasal'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Pasal $pasal)
+    public function update(Request $request, Document $document, Pasal $pasal)
     {
         $request->validate([
             'pasal' => 'required',

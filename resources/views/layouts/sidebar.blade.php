@@ -16,7 +16,7 @@
             </li>
             <li class="sidebar-item {{ Request::routeIs('documents.*') ? 'active' : '' }}">
                 <a class="sidebar-link" href="{{ route('documents.index') }}">
-                    <i class="align-middle" data-feather="file"></i> <span class="align-middle">Dokumen</span>
+                    <i class="align-middle" data-feather="file"></i> <span class="align-middle">Dokumen & Pasal</span>
                 </a>
             </li>
             <li class="sidebar-item">
