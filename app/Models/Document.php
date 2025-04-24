@@ -5,6 +5,7 @@ namespace App\Models;
 use Cviebrock\EloquentSluggable\Sluggable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Carbon;
 
 class Document extends Model
 {
@@ -38,5 +39,10 @@ class Document extends Model
     public function getRouteKeyName()
     {
         return 'slug';
+    }
+
+    public function getDueDateFormattedAttribute()
+    {
+        return $this->due_date ? Carbon::parse($this->due_date)->format('d M Y') : '-';
     }
 }

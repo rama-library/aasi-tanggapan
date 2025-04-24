@@ -35,7 +35,7 @@
                             <td>{{ $document->due_time }}</td>                            
                             <td>{{ $document->author->name }}</td>
                             <td>
-                                <a href="{{ route('documents.show', $document->slug) }}" class="badge bg-warning d-inline-flex align-items-center">
+                                <a href="{{ route('documents.show', $document->slug) }}" class="badge bg-info d-inline-flex align-items-center">
                                     <span data-feather="eye"></span>
                                 </a>
                                 <a href="{{ route('documents.edit', $document->slug) }}" class="badge bg-warning d-inline-flex align-items-center">

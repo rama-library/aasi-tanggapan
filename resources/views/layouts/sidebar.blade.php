@@ -20,8 +20,8 @@
                 </a>
             </li>
             <li class="sidebar-item">
-                <a class="sidebar-link" href="#">
-                    <i class="align-middle" data-feather="message-square"></i> <span class="align-middle">Tanggapan</span>
+                <a class="sidebar-link" href="{{ route('responds.today') }}">
+                    <i class="align-middle" data-feather="message-square"></i> <span class="align-middle">Tanggapan Hari Ini</span>
                 </a>
             </li>
             

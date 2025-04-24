@@ -15,7 +15,7 @@
                 <a class="nav-link" href="{{ route('home') }}">Beranda</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Tanggapan Berlangsung</a>
+                <a class="nav-link" href="{{ route('tanggapan-berlangsung') }}">Tanggapan Berlangsung</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Tanggapan Final</a>

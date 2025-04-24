@@ -16,7 +16,7 @@ class Pasal extends Model
         return $this->belongsTo(Document::class, 'doc_id');
     }
 
-    public function respond()
+    public function respond() // <- ubah dari "respond" ke "responds"
     {
         return $this->hasMany(Respond::class);
     }

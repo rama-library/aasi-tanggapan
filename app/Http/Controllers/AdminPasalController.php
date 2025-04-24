@@ -13,8 +13,8 @@ class AdminPasalController extends Controller
      */
     public function index($doc_id)
     {
-        // $document = Document::with('pasal')->findOrFail($doc_id);
-        // return view('document.show', compact('document'));
+        $document = Document::with('pasal')->findOrFail($doc_id);
+        return view('document.show', compact('document'));
     }
 
     /**
@@ -62,9 +62,10 @@ class AdminPasalController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Pasal $pasal)
+    public function show(Document $document, Pasal $pasal)
     {
-        //
+        $pasal->load(['respond.pic', 'respond.reviewer']); // Load nested relasi
+        return view('pasal.show', compact('document', 'pasal'));
     }
 
     /**

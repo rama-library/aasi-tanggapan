@@ -87,7 +87,7 @@
                             <!-- Navigasi tengah -->
                             <ul class="navbar-nav mx-auto">
                                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Beranda</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">Tanggapan Berlangsung</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('tanggapan.berlangsung') }}">Tanggapan Berlangsung</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#">Tanggapan Final</a></li>
                                 <li class="nav-item"><a class="nav-link" href="#">Laporan</a></li>
                             </ul>
@@ -254,8 +254,11 @@
     <!-- Inisialisasi DataTables -->
     <script>
         $(document).ready(function () {
-            $('#alltable').DataTable();
+        $('#alltable').DataTable({
+            responsive: true,
+            autoWidth: false
         });
+    });
     </script>
     <script src="https://unpkg.com/feather-icons"></script>
     <script>
@@ -263,5 +266,51 @@
             feather.replace();
         });
     </script>    
+    <script>
+        function hapusTanggapan(url) {
+            Swal.fire({
+                title: 'Yakin ingin menghapus tanggapan ini?',
+                input: 'textarea',
+                inputLabel: 'Alasan penghapusan',
+                inputPlaceholder: 'Tulis alasan di sini...',
+                inputAttributes: {
+                    'aria-label': 'Tulis alasan di sini'
+                },
+                showCancelButton: true,
+                confirmButtonText: 'Hapus',
+                cancelButtonText: 'Batal',
+                inputValidator: (value) => {
+                    if (!value) return 'Alasan wajib diisi!';
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = url;
+    
+                    const csrf = document.createElement('input');
+                    csrf.type = 'hidden';
+                    csrf.name = '_token';
+                    csrf.value = '{{ csrf_token() }}';
+                    form.appendChild(csrf);
+    
+                    const method = document.createElement('input');
+                    method.type = 'hidden';
+                    method.name = '_method';
+                    method.value = 'DELETE';
+                    form.appendChild(method);
+    
+                    const alasan = document.createElement('input');
+                    alasan.type = 'hidden';
+                    alasan.name = 'alasan';
+                    alasan.value = result.value;
+                    form.appendChild(alasan);
+    
+                    document.body.appendChild(form);
+                    form.submit();
+                }
+            });
+        }
+    </script>
 </body>
 </html>

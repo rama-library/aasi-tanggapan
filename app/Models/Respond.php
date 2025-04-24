@@ -30,4 +30,20 @@ class Respond extends Model
     {
         return $this->belongsTo(User::class, 'reviewer_id');
     }
+
+    public function getReviewerNameAttribute()
+    {
+        return $this->reviewer ? $this->reviewer->name : '-';
+    }
+
+    public function getPicNameAttribute()
+    {
+        return $this->pic ? $this->pic->name : '-';
+    }
+
+    // Ambil nama perusahaan yang terkait dengan PIC
+    public function perusahaan()
+    {
+        return $this->pic->perusahaan; // Anggap perusahaan ada di kolom 'perusahaan' milik User
+    }
 }
