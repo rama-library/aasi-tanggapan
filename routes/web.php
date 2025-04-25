@@ -24,6 +24,9 @@ Route::middleware(['auth'])->group(function () {
         ->middleware('auth');
     Route::get('/tanggapan-berlangsung', [RespondController::class, 'indexBerlangsung'])->name('tanggapan.berlangsung');
     Route::get('/tanggapan-berlangsung/{document:slug}/detail', [RespondController::class, 'show'])->name('tanggapan.detail');
+    Route::get('/tanggapan-final', [RespondController::class, 'indexFinal'])->name('tanggapan.final');
+    Route::get('/tanggapan-final/{document:slug}/detail', [RespondController::class, 'showFinal'])->name('tanggapan.final.detail');
+
 
     Route::middleware(['role:PIC'])->group(function () {
         Route::get('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/create', [RespondController::class, 'create'])->name('respond.create');
@@ -32,9 +35,12 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['role:Reviewer'])->group(function () {
         Route::get('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}/edit', [RespondController::class, 'edit'])->name('respond.edit');
-        Route::put('/tanggapan/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'update'])->name('respond.update');
+        Route::put('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'update'])->name('respond.update');
         Route::delete('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'destroy'])->name('respond.destroy');
-
+        
+        Route::get('/tanggapan-final/{document:slug}/pasal/{pasal}/respond/{respond}/edit', [RespondController::class, 'edit'])->name('tanggapan.final.edit');
+        Route::put('/tanggapan-final/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'update'])->name('tanggapan.final.update');
+        Route::delete('/tanggapan-final/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'destroy'])->name('tanggapan.final.destroy');
     }); 
 
     Route::middleware(['role:Main Admin'])->prefix('admin')->group(function () {

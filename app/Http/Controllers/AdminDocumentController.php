@@ -41,6 +41,8 @@ class AdminDocumentController extends Controller
             'perihal' => 'required',
             'due_date' => 'required|date',
             'due_time' => 'required',
+            'review_due_date' => 'required|date',
+            'review_due_time' => 'required',
         ]);
 
         $document = Document::create([
@@ -50,6 +52,8 @@ class AdminDocumentController extends Controller
             'perihal' => $validated['perihal'],
             'due_date' => $validated['due_date'],
             'due_time' => $validated['due_time'],            
+            'review_due_date' => $validated['review_due_date'],
+            'review_due_time' => $validated['review_due_time'],            
         ]);
 
         return redirect()->route('documents.index')->with([
@@ -88,6 +92,8 @@ class AdminDocumentController extends Controller
             'perihal' => 'required',
             'due_date' => 'required|date',
             'due_time' => 'required',      
+            'review_due_date' => 'required|date',
+            'review_due_time' => 'required',      
         ];
 
         if($request->slug != $document->slug){

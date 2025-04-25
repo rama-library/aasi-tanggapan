@@ -1,9 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
-
 <div class="container-fluid">
-    <h4 class="mb-3">Detail Dokumen: <strong>{{ $document->no_document }}</strong></h4>
+    <h4 class="mb-3">Detail Dokumen Final: <strong>{{ $document->no_document }}</strong></h4>
 
     {{-- Info Dokumen --}}
     <div class="card mb-4">
@@ -17,8 +16,7 @@
                 @else
                     <em>Belum ditentukan</em>
                 @endif
-            </p>
-            
+            </p>            
         </div>
     </div>
 
@@ -94,39 +92,28 @@
                                             -
                                         @endif
                                     </td>
-                                    <td>
-                                        @if ($isPIC && $respond->pic_id === auth()->id())
+                                    @if ($isReviewer && !$respond->is_deleted)
+                                        <td>                                        
                                             @if ($canReview)
-                                                <span class="badge bg-success">Sudah Tanggapi</span>
-                                            @else
-                                                <span class="badge bg-secondary">Hanya Bisa Melihat</span>
-                                            @endif
-                                        @elseif ($isReviewer && !$respond->is_deleted)
-                                            @if ($canReview)
-                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
+                                                <a href="{{ route('tanggapan.final.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
                                                 <button type="button"
                                                     class="btn btn-sm btn-danger"
-                                                    onclick="hapusTanggapan('{{ route('respond.destroy', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}')">
+                                                    onclick="hapusTanggapan('{{ route('tanggapan.final.destroy', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}')">
                                                     Hapus
                                                 </button>
                                             @else
                                                 <span class="badge bg-secondary">Waktu Review Habis</span>
                                             @endif
-                                        @else
+                                        </td> 
+                                    @else
+                                        <td class="text-center">
                                             -
-                                        @endif
-                                    </td>                                
+                                        </td>                               
+                                    @endif
                                 </tr>
                                 @endforeach
                             @endif
-                            @if ($isPIC && !$userResponded && $now->lte(\Carbon\Carbon::parse($document->due_date . ' ' . $document->due_time)))
-                                <tr>
-                                    <td colspan="9" class="text-end">
-                                        <a href="{{ route('respond.create', ['document' => $document->slug, 'pasal' => $p->id]) }}" class="btn btn-sm btn-primary">Tanggapi</a>
-                                    </td>
-                                </tr>
                             
-                                @endif                        
                             @empty
                             <tr>
                                 <td colspan="9" class="text-center">Tidak ada pasal ditemukan.</td>
@@ -134,7 +121,7 @@
                         @endforelse
                     </tbody>
                 </table>
-                {{-- Pagination --}}
+
                 <div class="mt-3">
                     {{ $pasal->links('pagination::bootstrap-4') }}
                 </div>

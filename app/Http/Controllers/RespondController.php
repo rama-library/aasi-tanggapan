@@ -6,14 +6,47 @@ use App\Models\Document;
 use App\Models\Pasal;
 use App\Models\Respond;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 
 class RespondController extends Controller
 {
     public function indexBerlangsung()
     {
-        $documents = Document::with('pasal.respond')->orderByDesc('created_at')->get();
+        $now = now();
+        $documents = Document::where(function ($query) use ($now) {
+            $query->where('due_date', '>', $now->toDateString())
+                ->orWhere(function ($q) use ($now) {
+                    $q->where('due_date', $now->toDateString())
+                        ->where('due_time', '>', $now->format('H:i:s'));
+                });
+        })->latest()->paginate(10);
+
         return view('respond.index', compact('documents'));
+    }
+
+    public function indexFinal(Request $request)
+    {
+        $search = $request->input('search');
+
+        $documents = Document::where(function ($query) use ($search) {
+                if ($search) {
+                    $query->where('no_document', 'like', "%{$search}%")
+                        ->orWhere('perihal', 'like', "%{$search}%");
+                }
+            })
+            ->where(function ($query) {
+                $now = now();
+                $query->where('due_date', '<', $now->toDateString())
+                    ->orWhere(function ($subQuery) use ($now) {
+                        $subQuery->where('due_date', $now->toDateString())
+                                ->where('due_time', '<', $now->format('H:i:s'));
+                    });
+            })
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        return view('respond.indexfinal', compact('documents'));
     }
 
     public function show(Request $request, Document $document)
@@ -29,6 +62,21 @@ class RespondController extends Controller
         $pasal = $pasalQuery->paginate(10)->withQueryString();
 
         return view('respond.detail', compact('document', 'pasal', 'search'));
+    }
+
+    public function showFinal(Request $request, Document $document)
+    {
+        $search = $request->input('search');
+
+        $pasalQuery = $document->pasal()->with(['respond.pic', 'respond.reviewer']);
+
+        if ($search) {
+            $pasalQuery->where('pasal', 'like', '%' . $search . '%');
+        }
+
+        $pasal = $pasalQuery->paginate(10)->withQueryString();
+
+        return view('respond.detailfinal', compact('document', 'pasal', 'search'));
     }
 
     public function create(Document $document, Pasal $pasal)
@@ -60,6 +108,21 @@ class RespondController extends Controller
     public function edit(Document $document, Pasal $pasal, Respond $respond)
     {
         // $respond = $pasal->respond()->first();
+
+        if (!auth()->user()->hasRole('Reviewer')) {
+            abort(403);
+        }
+    
+        $now = now();
+        $reviewDeadline = Carbon::parse($document->review_due_date . ' ' . $document->review_due_time);
+    
+        if ($now->gt($reviewDeadline)) {
+            return back()->with([
+                'alert_type' => 'error',
+                'alert_title' => 'Prohibited',
+                'alert' => 'Tanggapan Sudah Melewati Batas Waktu Untuk di Review.'
+            ]);
+        }
         
         return view('respond.edit', compact('document', 'pasal', 'respond'));
     }
@@ -94,7 +157,7 @@ class RespondController extends Controller
         // Update tanggapan
         $respond->tanggapan = $request->tanggapan;
         $respond->alasan = $request->alasan;
-        $respond->reviewer_id = auth()->id();
+        $respond->reviewer_id = Auth::id();
         $respond->save();
 
         return redirect()->route('tanggapan.detail', $document->slug)->with([
@@ -123,7 +186,11 @@ class RespondController extends Controller
             'is_deleted' => true,
         ]);
 
-        return redirect()->back()->with('success', 'Tanggapan berhasil dihapus dengan alasan.');
+        return redirect()->back()->with([
+            'alert_type' => 'success',
+            'alert_title' => 'Berhasil',
+            'alert' => 'Tanggapan berhasil dihapus.'
+        ]);
     }
 
 }

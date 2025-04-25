@@ -15,6 +15,8 @@ class Document extends Model
 
     protected $table = 'documents';
 
+    protected $dates = ['due_date', 'review_due_date'];
+
     protected $with = 'author';
 
     public function pasal()

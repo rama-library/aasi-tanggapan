@@ -18,7 +18,7 @@
                 <a class="nav-link" href="{{ route('tanggapan-berlangsung') }}">Tanggapan Berlangsung</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="#">Tanggapan Final</a>
+                <a class="nav-link" href="{{ route('tanggapan-final') }}">Tanggapan Final</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" href="#">Laporan</a>

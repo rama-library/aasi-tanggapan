@@ -9,7 +9,8 @@
         <div class="card-body">
             <p><strong>Perihal:</strong> {{ $document->perihal }}</p>
             <p><strong>Tanggal Upload:</strong> {{ \Carbon\Carbon::parse($document->created_at)->isoFormat('D MMMM Y') }}</p>
-            <p><strong>Due Date:</strong> {{ \Carbon\Carbon::parse($document->due_date)->isoFormat('D MMMM Y') }} {{ $document->due_time }}</p>
+            <p><strong>Responder Due Date:</strong> {{ \Carbon\Carbon::parse($document->due_date)->isoFormat('D MMMM Y') }} {{ $document->due_time }}</p>
+            <p><strong>Reviewer Due Date:</strong> {{ \Carbon\Carbon::parse($document->review_due_date)->isoFormat('D MMMM Y') }} {{ $document->review_due_time }}</p>
         </div>
     </div>
 

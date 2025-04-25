@@ -18,8 +18,8 @@
                             <th>No Dokumen</th>
                             <th>Perihal </th>
                             <th>Tanggal Upload</th>
-                            <th>Due Date</th>
-                            <th>Due Time</th>                            
+                            <th>Respond Due Date</th>                                             
+                            <th>Review Due Date</th>                                                 
                             <th>Uploader</th>                            
                             <th>Aksi</th>
                         </tr>
@@ -31,8 +31,8 @@
                             <td>{{ $document->no_document }}</td>
                             <td>{{ $document->perihal }}</td>
                             <td>{{ Carbon\Carbon::parse($document->created_at)->isoFormat('dddd, D MMMM Y') }}</td>
-                            <td>{{ Carbon\Carbon::parse($document->due_date)->isoFormat('dddd, D MMMM Y') }}</td>
-                            <td>{{ $document->due_time }}</td>                            
+                            <td>{{ Carbon\Carbon::parse($document->due_date)->isoFormat('dddd, D MMMM Y') }} {{ $document->due_time }}</td>
+                            <td>{{ Carbon\Carbon::parse($document->review_due_date)->isoFormat('dddd, D MMMM Y') }} {{ $document->review_due_time }}</td>                                
                             <td>{{ $document->author->name }}</td>
                             <td>
                                 <a href="{{ route('documents.show', $document->slug) }}" class="badge bg-info d-inline-flex align-items-center">

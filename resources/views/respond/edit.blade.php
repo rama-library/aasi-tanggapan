@@ -6,7 +6,12 @@
 
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('respond.update', ['document' => $document->slug, 'pasal' => $pasal->id, 'respond' => $respond->id]) }}" method="POST">
+            @php
+                $isFinal = request()->is('tanggapan-final/*');
+                $routeName = $isFinal ? 'tanggapan.final.update' : 'respond.update';
+                $backroute = $isFinal ? 'tanggapan.final.detail' : 'tanggapan.detail';
+            @endphp
+            <form action="{{ route($routeName, ['document' => $document->slug, 'pasal' => $pasal->id, 'respond' => $respond->id]) }}" method="POST">
                 @csrf
                 @method('PUT')
 
@@ -31,7 +36,7 @@
                 </div>
 
                 <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                <a href="{{ route('tanggapan.detail', $document->slug) }}" class="btn btn-secondary">Batal</a>
+                <a href="{{ route($backroute, $document->slug) }}" class="btn btn-secondary">Batal</a>
             </form>
         </div>
     </div>

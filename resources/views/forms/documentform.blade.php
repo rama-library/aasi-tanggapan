@@ -23,6 +23,17 @@
     <input type="time" class="form-control @error('due_time') is-invalid @enderror" id="due_time" name="due_time" value="{{ old('due_time', $document->due_time ?? '') }}">
 </div>
 
+<div class="col-md-6">
+    <label for="review_due_date" class="form-label">Review Due Date</label>
+    <input type="date" name="review_due_date" class="form-control" value="{{ old('review_due_date', $document->review_due_date ?? '') }}">
+</div>
+
+<div class="col-md-6">
+    <label for="review_due_time" class="form-label">Review Due Time</label>
+    <input type="time" name="review_due_time" class="form-control" value="{{ old('review_due_time', $document->review_due_time ?? '') }}">
+</div>
+
+
 <div class="d-flex justify-content-center">
     <button type="submit" class="btn btn-success me-2">{{ $submit ?? 'Simpan' }}</button>
     <a href="{{ route('documents.index') }}" class="btn btn-danger me-2">Kembali</a>
