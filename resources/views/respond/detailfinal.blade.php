@@ -71,7 +71,8 @@
                             
                                     <td>
                                         @if ($respond->is_deleted)
-                                            <em class="text-muted">Telah dihapus oleh reviewer</em>
+                                            <del class="muted">{{ json_decode($respond->original_data)->tanggapan ?? '-' }} </del>
+                                            <br>(Dihapus oleh reviewer)
                                         @else
                                             {{ $respond->tanggapan ?? '-' }}
                                             @if ($respond->original_data)

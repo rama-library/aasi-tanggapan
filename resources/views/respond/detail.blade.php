@@ -73,7 +73,8 @@
                             
                                     <td>
                                         @if ($respond->is_deleted)
-                                            <em class="text-muted">Telah dihapus oleh reviewer</em>
+                                            <del class="muted">{{ json_decode($respond->original_data)->tanggapan ?? '-' }} </del>
+                                            <br>(Dihapus oleh reviewer)
                                         @else
                                             {{ $respond->tanggapan ?? '-' }}
                                             @if ($respond->original_data)
@@ -121,7 +122,11 @@
                             @endif
                             @if ($isPIC && !$userResponded && $now->lte(\Carbon\Carbon::parse($document->due_date . ' ' . $document->due_time)))
                                 <tr>
-                                    <td colspan="9" class="text-end">
+                                    <td>{{ ($pasal->currentPage() - 1) * $pasal->perPage() + $index + 1 }}</td>
+                                    <td>{{ $p->pasal }}</td>
+                                    <td>{{ $p->penjelasan }}</td>
+                                    <td colspan="5" class="text-centar">Belum Ada Tanggapan</td>
+                                    <td class="text-center">
                                         <a href="{{ route('respond.create', ['document' => $document->slug, 'pasal' => $p->id]) }}" class="btn btn-sm btn-primary">Tanggapi</a>
                                     </td>
                                 </tr>

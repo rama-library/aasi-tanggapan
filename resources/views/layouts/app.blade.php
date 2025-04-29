@@ -89,7 +89,7 @@
                                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Beranda</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('tanggapan.berlangsung') }}">Tanggapan Berlangsung</a></li>
                                 <li class="nav-item"><a class="nav-link" href="{{ route('tanggapan.final') }}">Tanggapan Final</a></li>
-                                <li class="nav-item"><a class="nav-link" href="#">Laporan</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('laporan.index') }}">Laporan</a></li>
                             </ul>
             
                             <!-- Profile dropdown -->

@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminRoleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\RespondController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,7 +27,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tanggapan-berlangsung/{document:slug}/detail', [RespondController::class, 'show'])->name('tanggapan.detail');
     Route::get('/tanggapan-final', [RespondController::class, 'indexFinal'])->name('tanggapan.final');
     Route::get('/tanggapan-final/{document:slug}/detail', [RespondController::class, 'showFinal'])->name('tanggapan.final.detail');
-
+    // Menu Laporan
+    Route::get('/laporan', [ReportController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/export', [ReportController::class, 'export'])->name('laporan.export');
 
     Route::middleware(['role:PIC'])->group(function () {
         Route::get('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/create', [RespondController::class, 'create'])->name('respond.create');
