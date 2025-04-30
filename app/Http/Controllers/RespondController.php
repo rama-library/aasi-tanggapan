@@ -107,65 +107,114 @@ class RespondController extends Controller
 
     public function edit(Document $document, Pasal $pasal, Respond $respond)
     {
-        // $respond = $pasal->respond()->first();
+        $user = Auth::user();
+        $now = now();
 
-        if (!auth()->user()->hasRole('Reviewer')) {
+        if ($user->hasRole('Reviewer')) {
+            $reviewDeadline = Carbon::parse($document->review_due_date . ' ' . $document->review_due_time);
+
+            if ($now->gt($reviewDeadline)) {
+                return back()->with([
+                    'alert_type' => 'error',
+                    'alert_title' => 'Prohibited',
+                    'alert' => 'Tanggapan Sudah Melewati Batas Waktu Untuk di Review.'
+                ]);
+            }
+        } elseif ($user->hasRole('PIC')) {
+            // Cek apakah user adalah pemilik tanggapan
+            if ($respond->pic_id !== $user->id) {
+                abort(403, 'Anda hanya dapat mengedit tanggapan Anda sendiri.');
+            }
+
+            // Cek batas waktu PIC
+            $dueDate = Carbon::parse($document->due_date . ' ' . $document->due_time);
+            if ($now->gt($dueDate)) {
+                return back()->with([
+                    'alert_type' => 'error',
+                    'alert_title' => 'Terlambat',
+                    'alert' => 'Waktu untuk mengedit tanggapan telah habis.'
+                ]);
+            }
+        } else {
             abort(403);
         }
-    
-        $now = now();
-        $reviewDeadline = Carbon::parse($document->review_due_date . ' ' . $document->review_due_time);
-    
-        if ($now->gt($reviewDeadline)) {
-            return back()->with([
-                'alert_type' => 'error',
-                'alert_title' => 'Prohibited',
-                'alert' => 'Tanggapan Sudah Melewati Batas Waktu Untuk di Review.'
-            ]);
-        }
-        
+
         return view('respond.edit', compact('document', 'pasal', 'respond'));
     }
 
+
     public function update(Request $request, Document $document, $pasalId, $respondId)
     {
-        // Validasi input
         $request->validate([
             'tanggapan' => 'required|string',
             'alasan' => 'required|string',
         ]);
 
-        // Ambil data tanggapan
         $respond = Respond::where('id', $respondId)
             ->where('doc_id', $document->id)
             ->where('pasal_id', $pasalId)
             ->firstOrFail();
 
-        // Cek apakah user adalah reviewer
-        if (!auth()->user()->hasRole('Reviewer')) {
-            abort(403, 'Hanya Reviewer yang dapat mengedit tanggapan.');
+        $user = Auth::user();
+        $now = now();
+
+        if ($user->hasRole('Reviewer')) {
+            $reviewDeadline = Carbon::parse($document->review_due_date . ' ' . $document->review_due_time);
+            if ($now->gt($reviewDeadline)) {
+                return back()->with([
+                    'alert_type' => 'error',
+                    'alert_title' => 'Terlambat',
+                    'alert' => 'Waktu review sudah habis.'
+                ]);
+            }
+
+            $respond->original_data = json_encode([
+                'tanggapan' => $respond->tanggapan,
+                'alasan' => $respond->alasan,
+                'reviewer_id' => $respond->reviewer_id,
+                'edited_at' => now()->toDateTimeString(),
+            ]);
+
+            $respond->tanggapan = $request->tanggapan;
+            $respond->alasan = $request->alasan;
+            $respond->reviewer_id = $user->id;
+        } elseif ($user->hasRole('PIC')) {
+            // Cek kepemilikan dan batas waktu
+            if ($respond->pic_id !== $user->id) {
+                abort(403, 'Anda hanya dapat mengedit tanggapan Anda sendiri.');
+            }
+
+            $dueDate = Carbon::parse($document->due_date . ' ' . $document->due_time);
+            if ($now->gt($dueDate)) {
+                return back()->with([
+                    'alert_type' => 'error',
+                    'alert_title' => 'Terlambat',
+                    'alert' => 'Waktu edit tanggapan sudah habis.'
+                ]);
+            }
+
+            $respond->original_data = json_encode([
+                'tanggapan' => $respond->tanggapan,
+                'alasan' => $respond->alasan,
+                'pic_id' => $respond->pic_id,
+                'edited_at' => now()->toDateTimeString(),
+            ]);
+
+            $respond->tanggapan = $request->tanggapan;
+            $respond->alasan = $request->alasan;
+        } else {
+            abort(403);
         }
 
-        // Simpan data original sebelum diedit
-        $respond->original_data = json_encode([
-            'tanggapan' => $respond->tanggapan,
-            'alasan' => $respond->alasan,
-            'reviewer_id' => $respond->reviewer_id,
-            'edited_at' => now()->toDateTimeString(),
-        ]);
-
-        // Update tanggapan
-        $respond->tanggapan = $request->tanggapan;
-        $respond->alasan = $request->alasan;
-        $respond->reviewer_id = Auth::id();
         $respond->save();
 
         return redirect()->route('tanggapan.detail', $document->slug)->with([
             'alert_type' => 'success',
             'alert_title' => 'Berhasil',
-            'alert' => 'Tanggapan berhasil direview.'
+            'alert' => 'Tanggapan berhasil diperbarui.'
         ]);
     }
+
 
 
     public function destroy(Request $request, Document $document, $pasalId, $respondId)

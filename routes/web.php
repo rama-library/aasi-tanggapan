@@ -31,14 +31,16 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporan', [ReportController::class, 'index'])->name('laporan.index');
     Route::get('/laporan/export', [ReportController::class, 'export'])->name('laporan.export');
 
-    Route::middleware(['role:PIC'])->group(function () {
+    Route::middleware(['role:PIC|Reviewer'])->group(function () {
         Route::get('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/create', [RespondController::class, 'create'])->name('respond.create');
         Route::post('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}', [RespondController::class, 'store'])->name('respond.store');
+       
+        Route::get('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}/edit', [RespondController::class, 'edit'])->name('respond.edit');
+        Route::put('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'update'])->name('respond.update');
     });
 
     Route::middleware(['role:Reviewer'])->group(function () {
-        Route::get('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}/edit', [RespondController::class, 'edit'])->name('respond.edit');
-        Route::put('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'update'])->name('respond.update');
+        
         Route::delete('/tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'destroy'])->name('respond.destroy');
         
         Route::get('/tanggapan-final/{document:slug}/pasal/{pasal}/respond/{respond}/edit', [RespondController::class, 'edit'])->name('tanggapan.final.edit');

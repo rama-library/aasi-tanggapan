@@ -43,7 +43,9 @@
                             <th>Perusahaan</th>
                             <th>Reviewer</th>
                             <th>Alasan</th>
-                            <th>Aksi</th>
+                            @if (auth()->user()->hasRole('Reviewer'))
+                                <th>Aksi</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -51,15 +53,14 @@
                             @php
                                 $responds = $p->respond;
                                 $rowspan = $responds->count() ?: 1;
-                                $userResponded = $responds->contains('pic_id', auth()->id());
-                                $isPIC = auth()->user()->hasRole('PIC');
-                                $isReviewer = auth()->user()->hasRole('Reviewer');
                                 $now = now();
                                 $reviewDeadline = $document->review_due_date && $document->review_due_time
                                     ? \Carbon\Carbon::parse($document->review_due_date . ' ' . $document->review_due_time)
                                     : null;
                                 $canReview = !$reviewDeadline || $now->lte($reviewDeadline);
+                                $role = auth()->user()->getRoleNames()->first();
                             @endphp
+
                             @if ($responds->isNotEmpty())
                                 @foreach ($responds as $rIndex => $respond)
                                 <tr>
@@ -68,7 +69,8 @@
                                         <td rowspan="{{ $rowspan }}">{{ $p->pasal }}</td>
                                         <td rowspan="{{ $rowspan }}">{{ $p->penjelasan }}</td>
                                     @endif
-                            
+
+                                    {{-- Tanggapan --}}
                                     <td>
                                         @if ($respond->is_deleted)
                                             <del class="muted">{{ json_decode($respond->original_data)->tanggapan ?? '-' }} </del>
@@ -83,6 +85,7 @@
                                             @endif
                                         @endif
                                     </td>
+
                                     <td>{{ $respond->pic->name ?? '-' }}</td>
                                     <td>{{ $respond->perusahaan ?? '-' }}</td>
                                     <td>{{ $respond->reviewer->name ?? '-' }}</td>
@@ -93,29 +96,42 @@
                                             -
                                         @endif
                                     </td>
-                                    @if ($isReviewer && !$respond->is_deleted)
-                                        <td>                                        
-                                            @if ($canReview)
+
+                                    @if ($role === 'Reviewer')
+                                        <td>
+                                            @if (!$respond->is_deleted && $canReview)
                                                 <a href="{{ route('tanggapan.final.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
                                                 <button type="button"
                                                     class="btn btn-sm btn-danger"
                                                     onclick="hapusTanggapan('{{ route('tanggapan.final.destroy', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}')">
                                                     Hapus
                                                 </button>
-                                            @else
+                                            @elseif (!$canReview)
                                                 <span class="badge bg-secondary">Waktu Review Habis</span>
                                             @endif
-                                        </td> 
-                                    @else
-                                        <td class="text-center">
-                                            -
-                                        </td>                               
+                                        </td>
                                     @endif
                                 </tr>
                                 @endforeach
+                            @else
+                                {{-- Pasal tanpa tanggapan --}}
+                                <tr>
+                                    <td>{{ ($pasal->currentPage() - 1) * $pasal->perPage() + $index + 1 }}</td>
+                                    <td>{{ $p->pasal }}</td>
+                                    <td>{{ $p->penjelasan }}</td>
+                                    <td colspan="5" class="text-center">Belum ada tanggapan.</td>
+                                    @if ($role === 'Reviewer')
+                                        <td>
+                                            @if ($canReview)
+                                                <span class="badge bg-info">Menunggu Tanggapan</span>
+                                            @else
+                                                <span class="badge bg-secondary">Waktu Review Habis</span>
+                                            @endif
+                                        </td>
+                                    @endif
+                                </tr>
                             @endif
-                            
-                            @empty
+                        @empty
                             <tr>
                                 <td colspan="9" class="text-center">Tidak ada pasal ditemukan.</td>
                             </tr>

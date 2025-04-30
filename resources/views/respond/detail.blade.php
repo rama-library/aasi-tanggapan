@@ -97,10 +97,15 @@
                                     </td>
                                     <td>
                                         @if ($isPIC && $respond->pic_id === auth()->id())
-                                            @if ($canReview)
-                                                <span class="badge bg-success">Sudah Tanggapi</span>
+                                            @php
+                                                $tanggapanDeadline = \Carbon\Carbon::parse($document->due_date . ' ' . $document->due_time);
+                                                $canEditTanggapan = $now->lte($tanggapanDeadline);
+                                            @endphp
+                                    
+                                            @if ($canEditTanggapan)
+                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
                                             @else
-                                                <span class="badge bg-secondary">Hanya Bisa Melihat</span>
+                                                <span class="badge bg-secondary">Waktu Habis</span>
                                             @endif
                                         @elseif ($isReviewer && !$respond->is_deleted)
                                             @if ($canReview)
@@ -116,7 +121,7 @@
                                         @else
                                             -
                                         @endif
-                                    </td>                                
+                                    </td>                                                            
                                 </tr>
                                 @endforeach
                             @endif
