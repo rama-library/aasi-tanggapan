@@ -57,7 +57,7 @@ class AdminAccountController extends Controller
 
         $user->assignRole($validated['role']);
 
-        return redirect()->route('users.index')->with([
+        return redirect()->route('admin.users.index')->with([
             'alert' => 'Akun berhasil dibuat!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success',
@@ -107,7 +107,7 @@ class AdminAccountController extends Controller
 
         $user->syncRoles($validated['role']);
 
-        return redirect()->route('users.index')->with([
+        return redirect()->route('admin.users.index')->with([
             'alert' => 'Akun berhasil diperbarui!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success',
@@ -121,7 +121,7 @@ class AdminAccountController extends Controller
     public function destroy(User $user)
     {
         User::destroy($user->id);
-        return redirect('/admin/users')->with([
+        return redirect()->route('admin.users.index')->with([
             'alert' => 'Akun Berhasil Dihapus!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success'
@@ -141,7 +141,7 @@ class AdminAccountController extends Controller
 
         $user->update(['password' => Hash::make($request->new_password)]);
 
-        return redirect('/admin/users')->with([
+        return redirect()->route('admin.users.index')->with([
             'alert' => 'Password berhasil diubah!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success'

@@ -3,8 +3,8 @@
 <input type="hidden" name="doc_id" value="{{ $doc_id ?? $pasal->doc_id ?? '' }}">
 
 <div class="col-md-12 mb-3">
-    <label for="pasal" class="form-label">Pasal</label>
-    <input type="text" class="form-control" name="pasal" value="{{ old('pasal', $pasal->pasal ?? '') }}" autofocus>
+    <label for="pasal" class="form-label">Batang Tubuh</label>
+    <textarea class="form-control" name="pasal" rows="4" required>{{ old('pasal', $pasal->pasal ?? '') }}</textarea>
 </div>
 
 <div class="col-md-12 mb-3">
@@ -14,5 +14,5 @@
 
 <div class="d-flex justify-content-center">
     <button type="submit" class="btn btn-success me-2">{{ $submit ?? 'Simpan' }}</button>
-    <a href="{{ route('documents.show', $document->slug) }}" class="btn btn-danger me-2">Kembali</a>
+    <a href="{{ route('admin.documents.show', $document->slug) }}" class="btn btn-danger me-2">Kembali</a>
 </div>

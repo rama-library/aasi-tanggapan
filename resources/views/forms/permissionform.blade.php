@@ -8,4 +8,4 @@
 </div>
 
 <button type="submit" class="btn btn-success">{{ $submit }}</button>
-<a href="{{ route('permissions.index') }}" class="btn btn-secondary">Kembali</a>
+<a href="{{ route('admin.permissions.index') }}" class="btn btn-secondary">Kembali</a>

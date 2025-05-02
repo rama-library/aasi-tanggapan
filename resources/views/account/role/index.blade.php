@@ -5,7 +5,7 @@
     <h1 class="h3 mb-3">Manajemen Role</h1>
 
     <div class="mb-3">
-        <a href="{{ route('roles.create') }}" class="btn btn-primary">+ Tambah Role</a>
+        <a href="{{ route('admin.roles.create') }}" class="btn btn-primary">+ Tambah Role</a>
     </div>
 
     <div class="card">
@@ -28,10 +28,10 @@
                                 <td>{{ $role->permissions->pluck('name')->join(', ') }}</td>                                                                                
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('roles.edit', $role->id) }}" class="badge bg-warning d-flex align-items-center">
+                                        <a href="{{ route('admin.roles.edit', $role->id) }}" class="badge bg-warning d-flex align-items-center">
                                             <span data-feather="edit" class="me-1"></span>Edit
                                         </a>
-                                        <form id="delete-form-{{ $role->id }}" action="{{ route('roles.destroy', $role->id) }}" method="POST">
+                                        <form id="delete-form-{{ $role->id }}" action="{{ route('admin.roles.destroy', $role->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
                                             <button type="button" onclick="confirmDelete('delete-form-{{ $role->id }}')" class="badge bg-danger border-0 d-flex align-items-center">

@@ -6,7 +6,7 @@
     <div class="card-body">
         <div class="row">
             <div class="col-md-6 col-lg-12">
-                <form action="{{ route('roles.store') }}" method="POST">
+                <form action="{{ route('admin.roles.store') }}" method="POST">
                     @csrf
                     @include('forms.roleform', ['submit' => 'Simpan'])
                 </form>

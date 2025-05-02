@@ -21,4 +21,4 @@
 </div>
 
 <button type="submit" class="btn btn-success">{{ $submit }}</button>
-<a href="{{ route('roles.index') }}" class="btn btn-secondary">Kembali</a>
+<a href="{{ route('admin.roles.index') }}" class="btn btn-secondary">Kembali</a>

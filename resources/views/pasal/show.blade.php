@@ -2,13 +2,13 @@
 
 @section('content')
 <div class="container-fluid">
-    <h4 class="mb-3">Detail Pasal: <strong>{{ $pasal->pasal }}</strong></h4>
+    <h4 class="mb-3">Detail Batang Tubuh</strong></h4>
 
     {{-- Detail Pasal --}}
     <div class="card mb-4">
         <div class="card-body">            
-            <p><strong>Pasal:</strong> {{ $pasal->pasal }}</p>
-            <p><strong>Penjelasan:</strong> {{ $pasal->penjelasan }}</p>
+            <p class="text-justify"><strong>Batang Tubuh:</strong> {{ $pasal->pasal }}</p>
+            <p class="text-justify"><strong>Penjelasan:</strong> {{ $pasal->penjelasan }}</p>
         </div>
     </div>
 

@@ -36,7 +36,7 @@ class AdminPermissionController extends Controller
 
         Permission::create(['name' => $request->name]);
 
-        return redirect('/admin/permissions')->with([
+        return redirect()->route('admin.permissions.index')->with([
             'alert' => 'Penambahan Hak Akses Berhasil Ditambahkan!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success'
@@ -83,7 +83,7 @@ class AdminPermissionController extends Controller
     public function destroy(Permission $permission)
     {
         Permission::destroy($permission->id);
-        return redirect('/admin/permissions')->with([
+        return redirect()->route('admin.permissions.index')->with([
             'alert' => 'Hak Akses Berhasil Dihapus!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success'

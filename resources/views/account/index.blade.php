@@ -5,7 +5,7 @@
     <h1 class="h3 mb-3">Daftar Akun</h1>
 
     <div class="mb-3">
-        <a href="{{ route('users.create') }}" class="btn btn-primary">+ Tambah Akun</a>
+        <a href="{{ route('admin.users.create') }}" class="btn btn-primary">+ Tambah Akun</a>
     </div>
 
     <div class="card">

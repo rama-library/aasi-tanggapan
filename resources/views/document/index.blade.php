@@ -5,7 +5,7 @@
     <h1 class="h3 mb-3">Daftar Dokumen</h1>
 
     <div class="mb-3">
-        <a href="{{ route('documents.create') }}" class="btn btn-primary">+ Tambah Dokumen</a>
+        <a href="{{ route('admin.documents.create') }}" class="btn btn-primary">+ Tambah Dokumen</a>
     </div>
 
     <div class="card">
@@ -35,13 +35,13 @@
                             <td>{{ Carbon\Carbon::parse($document->review_due_date)->isoFormat('dddd, D MMMM Y') }} {{ $document->review_due_time }}</td>                                
                             <td>{{ $document->author->name }}</td>
                             <td>
-                                <a href="{{ route('documents.show', $document->slug) }}" class="badge bg-info d-inline-flex align-items-center">
+                                <a href="{{ route('admin.documents.show', $document->slug) }}" class="badge bg-info d-inline-flex align-items-center">
                                     <span data-feather="eye"></span>
                                 </a>
-                                <a href="{{ route('documents.edit', $document->slug) }}" class="badge bg-warning d-inline-flex align-items-center">
+                                <a href="{{ route('admin.documents.edit', $document->slug) }}" class="badge bg-warning d-inline-flex align-items-center">
                                     <span data-feather="edit"></span>
                                 </a>
-                                <form id="delete-form-{{ $document->slug }}" action="{{ route('documents.destroy', $document->slug) }}" method="POST">
+                                <form id="delete-form-{{ $document->slug }}" action="{{ route('admin.documents.destroy', $document->slug) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" onclick="confirmDelete('delete-form-{{ $document->slug }}')" class="badge bg-danger border-0 d-inline-flex align-items-center">

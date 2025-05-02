@@ -5,12 +5,12 @@
     <div class="col-md-12">
         <div class="card">
             <div class="card-header">
-                <div class="card-title"><h1>Tambah Pasal</h1></div>
+                <div class="card-title"><h1>Tambah Batang Tubuh</h1></div>
             </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 col-lg-12">
-                        <form action="{{ route('pasal.store', ['document' => $document->slug]) }}" method="POST" class="mb-5 row g-3" enctype="multipart/form-data">
+                        <form action="{{ route('admin.pasal.store', ['document' => $document->slug]) }}" method="POST" class="mb-5 row g-3" enctype="multipart/form-data">
                             @include('forms.pasalform', ['document' => $document, 'submit' => 'Tambah'])
                         </form>
                     </div>

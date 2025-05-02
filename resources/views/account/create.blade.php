@@ -10,7 +10,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 col-lg-12">
-                        <form action="{{ route('users.store') }}" method="POST" class="mb-5 row g-3" enctype="multipart/form-data">
+                        <form action="{{ route('admin.users.store') }}" method="POST" class="mb-5 row g-3" enctype="multipart/form-data">
                             @csrf
                             @include('forms.accountform', ['submit' => 'Tambah'])
                         </form>

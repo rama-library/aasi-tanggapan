@@ -5,7 +5,7 @@
     <h1 class="h3 mb-3">Manajemen Permission</h1>
 
     <div class="mb-3">
-        <a href="{{ route('permissions.create') }}" class="btn btn-primary">+ Tambah Permission</a>
+        <a href="{{ route('admin.permissions.create') }}" class="btn btn-primary">+ Tambah Permission</a>
     </div>
 
     <div class="card">

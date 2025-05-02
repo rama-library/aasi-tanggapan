@@ -10,7 +10,7 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 col-lg-12">
-                        <form action="{{ route('pasal.update', ['document' => $document->slug, 'pasal' => $pasal->id]) }}" method="POST">
+                        <form action="{{ route('admin.pasal.update', ['document' => $document->slug, 'pasal' => $pasal->id]) }}" method="POST">
                             @method('PUT')
                             @include('forms.pasalform', ['pasal' => $pasal, 'submit' => 'Perbarui'])
                         </form>

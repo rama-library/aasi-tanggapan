@@ -36,7 +36,7 @@
 
 <div class="d-flex justify-content-center">
     <button type="submit" class="btn btn-success me-2">{{ $submit ?? 'Simpan' }}</button>
-    <a href="{{ route('documents.index') }}" class="btn btn-danger me-2">Kembali</a>
+    <a href="{{ route('admin.documents.index') }}" class="btn btn-danger me-2">Kembali</a>
 </div>
 
 <script>

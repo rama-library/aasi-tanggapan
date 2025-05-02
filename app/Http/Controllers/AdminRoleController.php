@@ -44,7 +44,7 @@ class AdminRoleController extends Controller
             $role->syncPermissions($validated['permissions']);
         }
 
-        return redirect('/admin/roles')->with([
+        return redirect()->route('admin.roles.index')->with([
             'alert' => 'Role Berhasil Ditambahkan!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success'
@@ -83,7 +83,7 @@ class AdminRoleController extends Controller
         $role->update(['name' => $validated['name']]);
         $role->syncPermissions($validated['permissions'] ?? []);
 
-        return redirect('/admin/roles')->with([
+        return redirect()->route('admin.roles.index')->with([
             'alert' => 'Role Berhasil Diperbaharui!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success'
@@ -96,7 +96,7 @@ class AdminRoleController extends Controller
     public function destroy(Role $role)
     {
         Role::destroy($role->id);
-        return redirect('/admin/roles')->with([
+        return redirect()->route('admin.roles.index')->with([
             'alert' => 'Role Berhasil Dihapus!',
             'alert_title' => 'Berhasil',
             'alert_type' => 'success'

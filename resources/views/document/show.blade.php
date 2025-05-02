@@ -17,7 +17,7 @@
     {{-- Daftar Pasal --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="mb-0">Daftar Pasal</h5>
-        <a href="{{ route('pasal.create', ['document' => $document->slug]) }}" class="btn btn-primary">+ Tambah Pasal</a>
+        <a href="{{ route('admin.pasal.create', ['document' => $document->slug]) }}" class="btn btn-primary">+ Tambah Pasal</a>
     </div>
 
     <div class="card">
@@ -27,7 +27,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Pasal</th>
+                            <th>Batang Tubuh</th>
                             <th>Penjelasan</th>
                             <th>Aksi</th>
                         </tr>
@@ -36,13 +36,13 @@
                         @foreach ($document->pasal as $index => $pasal)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td>{{ $pasal->pasal }}</td>
-                            <td>{{ $pasal->penjelasan }}</td>
+                            <td class="text-justify">{{ $pasal->pasal }}</td>
+                            <td class="text-justify">{{ $pasal->penjelasan }}</td>
                             <td>
-                                <a href="{{ route('pasal.show', ['document' => $document->slug, 'pasal' => $pasal->id]) }}" class="badge bg-info d-inline-flex align-items-center">
+                                <a href="{{ route('admin.pasal.show', ['document' => $document->slug, 'pasal' => $pasal->id]) }}" class="badge bg-info d-inline-flex align-items-center">
                                     <span data-feather="eye"></span>
                                 </a>                            
-                                <form id="delete-form-{{ $pasal->id }}" action="{{ route('pasal.destroy', $pasal->id) }}" method="POST">
+                                <form id="delete-form-{{ $pasal->id }}" action="{{ route('admin.pasal.destroy', $pasal->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" onclick="confirmDelete('delete-form-{{ $pasal->id }}')" class="badge bg-danger border-0 d-inline-flex align-items-center">

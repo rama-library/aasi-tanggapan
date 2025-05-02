@@ -51,7 +51,7 @@ class AdminPasalController extends Controller
         ]);
 
         // Redirect kembali ke halaman dokumen
-        return redirect()->route('documents.show', ['document' => $document->slug])->with([
+        return redirect()->route('admin.documents.show', ['document' => $document->slug])->with([
             'alert_type' => 'success',
             'alert_title' => 'Tersimpan',
             'alert' => 'Pasal berhasil ditambahkan.'
@@ -92,7 +92,7 @@ class AdminPasalController extends Controller
         ]);
 
         $document = Document::findOrFail($pasal->doc_id);
-        return redirect()->route('documents.show', $document->slug)->with([
+        return redirect()->route('admin.documents.show', $document->slug)->with([
             'alert_type' => 'success',
             'alert_title' => 'Terupdate',
             'alert' => 'Pasal berhasil diperbarui.'
@@ -107,7 +107,7 @@ class AdminPasalController extends Controller
         $document = Document::findOrFail($pasal->doc_id);
         $pasal->delete();
 
-        return redirect()->route('documents.show', $document->slug)->with([
+        return redirect()->route('admin.documents.show', $document->slug)->with([
             'alert_type' => 'success',
             'alert_title' => 'Terhapus',
             'alert' => 'Pasal berhasil dihapus.'
