@@ -22,7 +22,7 @@
                         @foreach ($documents as $index => $doc)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td><a href="{{ route('tanggapan.detail', $doc->slug) }}">{{ $doc->no_document }}</a></td>
+                            <td><a href="{{ route('tanggapan.berlangsung.detail', $doc->slug) }}">{{ $doc->no_document }}</a></td>
                             <td>{{ $doc->perihal }}</td>
                             <td>{{ $doc->created_at->format('d M Y') }}</td>
                             <td>{{ $doc->due_date_formatted }}</td>

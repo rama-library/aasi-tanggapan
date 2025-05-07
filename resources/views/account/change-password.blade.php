@@ -8,7 +8,7 @@
         <div class="col-md-6">
             <div class="card shadow-sm">
                 <div class="card-body">
-                    <form action="{{ route('users.update-password', $user->id) }}" method="POST">
+                    <form action="{{ route('admin.users.update-password', $user->id) }}" method="POST">
                         @csrf
                         @method('PUT')
 
@@ -33,7 +33,7 @@
                         </div>
 
                         <div class="d-flex justify-content-between">
-                            <a href="{{ route('users.index') }}" class="btn btn-secondary">Kembali</a>
+                            <a href="{{ route('admin.users.index') }}" class="btn btn-secondary">Kembali</a>
                             <button type="submit" class="btn btn-primary">Simpan Password</button>
                         </div>
                     </form>

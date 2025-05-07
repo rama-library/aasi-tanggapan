@@ -109,7 +109,7 @@
                                             @endif
                                         @elseif ($isReviewer && !$respond->is_deleted)
                                             @if ($canReview)
-                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
+                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Review</a>
                                                 <button type="button"
                                                     class="btn btn-sm btn-danger"
                                                     onclick="hapusTanggapan('{{ route('respond.destroy', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}')">

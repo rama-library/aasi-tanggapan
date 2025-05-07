@@ -39,14 +39,14 @@
                                 </span>
                             </td>
                             <td>
-                                <a href="{{ route('users.edit', $user->id) }}" class="badge bg-warning d-inline-flex align-items-center">
+                                <a href="{{ route('admin.users.edit', $user->id) }}" class="badge bg-warning d-inline-flex align-items-center">
                                     <span data-feather="edit"></span>
                                 </a>
-                                <a href="{{ route('users.change-password', $user->id) }}" class="badge bg-primary d-inline-flex align-items-center">
+                                <a href="{{ route('admin.users.change-password', $user->id) }}" class="badge bg-primary d-inline-flex align-items-center">
                                     <span data-feather="key"></span>
                                 </a>
                             
-                                <form id="delete-form-{{ $user->id }}" action="{{ route('users.destroy', $user->id) }}" method="POST">
+                                <form id="delete-form-{{ $user->id }}" action="{{ route('admin.users.destroy', $user->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
                                     <button type="button" onclick="confirmDelete('delete-form-{{ $user->id }}')" class="badge bg-danger border-0 d-inline-flex align-items-center">

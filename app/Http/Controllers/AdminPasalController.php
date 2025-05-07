@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 class AdminPasalController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display all pasal for the given document ID.
      */
     public function index($doc_id)
     {
@@ -18,58 +18,42 @@ class AdminPasalController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new pasal.
      */
     public function create($slug)
     {
-        // Ambil dokumen berdasarkan slug
         $document = Document::where('slug', $slug)->firstOrFail();
-        
-        // Tampilkan view create dengan membawa dokumen yang sesuai
         return view('pasal.create', compact('document'));
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created pasal.
      */
     public function store(Request $request, $slug)
     {
-        // Cari dokumen berdasarkan slug
         $document = Document::where('slug', $slug)->firstOrFail();
+        $this->validatePasal($request);
 
-        // Validasi input
-        $request->validate([
-            'pasal' => 'required',
-            'penjelasan' => 'required',
-        ]);
-
-        // Menambahkan pasal
         Pasal::create([
             'doc_id' => $document->id,
             'pasal' => $request->pasal,
             'penjelasan' => $request->penjelasan,
         ]);
 
-        // Redirect kembali ke halaman dokumen
-        return redirect()->route('admin.documents.show', ['document' => $document->slug])->with([
-            'alert_type' => 'success',
-            'alert_title' => 'Tersimpan',
-            'alert' => 'Pasal berhasil ditambahkan.'
-        ]);
+        return $this->alertRedirect('admin.documents.show', $document->slug, 'Pasal berhasil ditambahkan.', 'Tersimpan');
     }
 
-
     /**
-     * Display the specified resource.
+     * Display the specified pasal.
      */
     public function show(Document $document, Pasal $pasal)
     {
-        $pasal->load(['respond.pic', 'respond.reviewer']); // Load nested relasi
+        $pasal->load(['respond.pic', 'respond.reviewer']);
         return view('pasal.show', compact('document', 'pasal'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified pasal.
      */
     public function edit(Document $document, Pasal $pasal)
     {
@@ -77,40 +61,51 @@ class AdminPasalController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified pasal.
      */
     public function update(Request $request, Document $document, Pasal $pasal)
     {
-        $request->validate([
-            'pasal' => 'required',
-            'penjelasan' => 'required'
-        ]);
+        $this->validatePasal($request);
 
         $pasal->update([
             'pasal' => $request->pasal,
-            'penjelasan' => $request->penjelasan
+            'penjelasan' => $request->penjelasan,
         ]);
 
-        $document = Document::findOrFail($pasal->doc_id);
-        return redirect()->route('admin.documents.show', $document->slug)->with([
-            'alert_type' => 'success',
-            'alert_title' => 'Terupdate',
-            'alert' => 'Pasal berhasil diperbarui.'
+        return $this->alertRedirect('admin.documents.show', $document->slug, 'Pasal berhasil diperbarui.', 'Terupdate');
+    }
+
+    /**
+     * Remove the specified pasal.
+     */
+    public function destroy(Pasal $pasal)
+    {
+        $documentSlug = Document::findOrFail($pasal->doc_id)->slug;
+        $pasal->delete();
+
+        return $this->alertRedirect('admin.documents.show', $documentSlug, 'Pasal berhasil dihapus.', 'Terhapus');
+    }
+
+    /**
+     * Validate pasal input.
+     */
+    protected function validatePasal(Request $request): void
+    {
+        $request->validate([
+            'pasal' => 'required',
+            'penjelasan' => 'required',
         ]);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Redirect with alert flash data.
      */
-    public function destroy(Pasal $pasal)
+    protected function alertRedirect(string $route, string $param, string $message, string $title)
     {
-        $document = Document::findOrFail($pasal->doc_id);
-        $pasal->delete();
-
-        return redirect()->route('admin.documents.show', $document->slug)->with([
+        return redirect()->route($route, $param)->with([
             'alert_type' => 'success',
-            'alert_title' => 'Terhapus',
-            'alert' => 'Pasal berhasil dihapus.'
+            'alert_title' => $title,
+            'alert' => $message,
         ]);
     }
 }

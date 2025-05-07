@@ -9,7 +9,7 @@
             @php
                 $isFinal = request()->is('tanggapan-final/*');
                 $routeName = $isFinal ? 'tanggapan.final.update' : 'respond.update';
-                $backroute = $isFinal ? 'tanggapan.final.detail' : 'tanggapan.detail';
+                $backroute = $isFinal ? 'tanggapan.final.detail' : 'tanggapan.berlangsung.detail';
             @endphp
             <form action="{{ route($routeName, ['document' => $document->slug, 'pasal' => $pasal->id, 'respond' => $respond->id]) }}" method="POST">
                 @csrf

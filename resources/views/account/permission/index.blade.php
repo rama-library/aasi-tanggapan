@@ -26,10 +26,10 @@
                                 <td>{{ $permission->name }}</td>
                                 <td>
                                     <div class="d-flex gap-2">
-                                        <a href="{{ route('permissions.edit', $permission->id) }}" class="badge bg-warning d-flex align-items-center">
+                                        <a href="{{ route('admin.permissions.edit', $permission->id) }}" class="badge bg-warning d-flex align-items-center">
                                             <span data-feather="edit" class="me-1"></span>Edit
                                         </a>
-                                        <form id="delete-form-{{ $permission->id }}" action="{{ route('permissions.destroy', $permission->id) }}" method="POST">
+                                        <form id="delete-form-{{ $permission->id }}" action="{{ route('admin.permissions.destroy', $permission->id) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
                                             <button type="button" onclick="confirmDelete('delete-form-{{ $permission->id }}')" class="badge bg-danger border-0 d-flex align-items-center">

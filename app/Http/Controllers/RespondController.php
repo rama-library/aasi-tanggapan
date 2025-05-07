@@ -98,7 +98,7 @@ class RespondController extends Controller
             'perusahaan' => Auth::user()->company_name,
         ]);
         
-        return redirect()->route('tanggapan.detail', $document->slug)->with([
+        return redirect()->route('tanggapan.berlangsung.detail', $document->slug)->with([
             'alert_type' => 'success',
             'alert_title' => 'Tersimpan',
             'alert' => 'Tanggapan berhasil ditambahkan.'
@@ -208,7 +208,7 @@ class RespondController extends Controller
 
         $respond->save();
 
-        return redirect()->route('tanggapan.detail', $document->slug)->with([
+        return redirect()->route('tanggapan.berlangsung.detail', $document->slug)->with([
             'alert_type' => 'success',
             'alert_title' => 'Berhasil',
             'alert' => 'Tanggapan berhasil diperbarui.'

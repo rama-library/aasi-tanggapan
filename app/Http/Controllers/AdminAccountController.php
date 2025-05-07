@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExternalCompany;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,17 +11,16 @@ use Spatie\Permission\Models\Role;
 class AdminAccountController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the users.
      */
     public function index()
     {
-        return view('account.index', [
-            'users' => User::with('roles')->get()
-        ]);
+        $users = User::with('roles')->get();
+        return view('account.index', compact('users'));
     }
 
     /**
-     * Show the form for creating a new resource.
+     * Show the form for creating a new user.
      */
     public function create()
     {
@@ -32,19 +30,11 @@ class AdminAccountController extends Controller
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a newly created user.
      */
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:8',
-            'company_name' => 'required|string|max:255',
-            'department' => 'nullable|string|max:100',
-            'role' => 'required|exists:roles,name',
-            'is_active' => 'required|boolean',
-        ]);
+        $validated = $this->validateUser($request, true);
 
         $user = User::create([
             'name' => $validated['name'],
@@ -57,24 +47,11 @@ class AdminAccountController extends Controller
 
         $user->assignRole($validated['role']);
 
-        return redirect()->route('admin.users.index')->with([
-            'alert' => 'Akun berhasil dibuat!',
-            'alert_title' => 'Berhasil',
-            'alert_type' => 'success',
-        ]);
-    }
-
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(User $user)
-    {
-        //
+        return $this->redirectSuccess('Akun berhasil dibuat!');
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show the form for editing the specified user.
      */
     public function edit(User $user)
     {
@@ -84,18 +61,11 @@ class AdminAccountController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified user.
      */
     public function update(Request $request, User $user)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
-            'company_name' => 'required|string|max:255',
-            'department' => 'nullable|string|max:100',
-            'role' => 'required|exists:roles,name',
-            'is_active' => 'required|boolean',
-        ]);
+        $validated = $this->validateUser($request, false, $user->id);
 
         $user->update([
             'name' => $validated['name'],
@@ -107,44 +77,73 @@ class AdminAccountController extends Controller
 
         $user->syncRoles($validated['role']);
 
-        return redirect()->route('admin.users.index')->with([
-            'alert' => 'Akun berhasil diperbarui!',
-            'alert_title' => 'Berhasil',
-            'alert_type' => 'success',
-        ]);
+        return $this->redirectSuccess('Akun berhasil diperbarui!');
     }
 
-
     /**
-     * Remove the specified resource from storage.
+     * Remove the specified user.
      */
     public function destroy(User $user)
     {
-        User::destroy($user->id);
-        return redirect()->route('admin.users.index')->with([
-            'alert' => 'Akun Berhasil Dihapus!',
-            'alert_title' => 'Berhasil',
-            'alert_type' => 'success'
-        ]);
+        $user->delete();
+
+        return $this->redirectSuccess('Akun berhasil dihapus!');
     }
 
+    /**
+     * Show the form for changing user password.
+     */
     public function changePassword(User $user)
     {
         return view('account.change-password', compact('user'));
     }
 
+    /**
+     * Update the user's password.
+     */
     public function updatePassword(Request $request, User $user)
     {
         $request->validate([
             'new_password' => 'required|min:8|confirmed'
         ]);
 
-        $user->update(['password' => Hash::make($request->new_password)]);
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
 
+        return $this->redirectSuccess('Password berhasil diubah!');
+    }
+
+    /**
+     * Validate user input for store/update.
+     */
+    protected function validateUser(Request $request, bool $isCreate = true, int $userId = null): array
+    {
+        $rules = [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email' . ($userId ? ',' . $userId : ''),
+            'company_name' => 'required|string|max:255',
+            'department' => 'nullable|string|max:100',
+            'role' => 'required|exists:roles,name',
+            'is_active' => 'required|boolean',
+        ];
+
+        if ($isCreate) {
+            $rules['password'] = 'required|min:8';
+        }
+
+        return $request->validate($rules);
+    }
+
+    /**
+     * Return success redirect response with flash message.
+     */
+    protected function redirectSuccess(string $message)
+    {
         return redirect()->route('admin.users.index')->with([
-            'alert' => 'Password berhasil diubah!',
+            'alert' => $message,
             'alert_title' => 'Berhasil',
-            'alert_type' => 'success'
+            'alert_type' => 'success',
         ]);
     }
 }
