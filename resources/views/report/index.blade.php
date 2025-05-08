@@ -28,7 +28,7 @@
 
         <div class="col-md-3">
             <label for="search" class="form-label">Cari</label>
-            <input type="text" name="search" id="search" value="{{ request('search') }}" class="form-control" placeholder="Cari pasal atau tanggapan">
+            <input type="text" name="search" id="search" value="{{ request('search') }}" class="form-control" placeholder="Cari Batang Tubuh atau Tanggapan">
         </div>
 
         <div class="col-md-3 d-flex align-items-end">
@@ -57,7 +57,7 @@
                         <tr class="table-light">
                             <th>No</th>
                             <th>Dokumen</th>
-                            <th>Pasal</th>
+                            <th>Batang Tubuh</th>
                             <th>Penjelasan</th>
                             <th>Tanggapan</th>
                             <th>PIC</th>
@@ -71,9 +71,9 @@
                             $rowNumber = ($result->currentPage() - 1) * $result->perPage() + 1;
                         @endphp
 
-                        @foreach ($result as $pasal)
+                        @foreach ($result as $batangtubuh)
                             @php
-                                $responds = $pasal->respond;
+                                $responds = $batangtubuh->respond;
                                 $filteredResponds = $responds;
 
                                 // Kalau tipe final, buang data yang dihapus
@@ -88,8 +88,16 @@
                                         @if ($index == 0)
                                             <td rowspan="{{ $filteredResponds->count() }}">{{ $rowNumber }}</td>
                                             <td rowspan="{{ $filteredResponds->count() }}">{{ $selectedDocument->no_document ?? '-' }}</td>
-                                            <td rowspan="{{ $filteredResponds->count() }}">{{ $pasal->pasal ?? '-' }}</td>
-                                            <td rowspan="{{ $filteredResponds->count() }}">{{ $pasal->penjelasan ?? '-' }}</td>
+                                            <td rowspan="{{ $filteredResponds->count() }}">{{ $batangtubuh->batang_tubuh ?? '-' }}</td>
+                                            <td rowspan="{{ $filteredResponds->count() }}">
+                                                @if ($batangtubuh->gambar)
+                                                <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                                @elseif ($batangtubuh->penjelasan)
+                                                    <p>{{ $batangtubuh->penjelasan }}</p>
+                                                @else
+                                                    <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                                @endif
+                                            </td>
                                             @php $rowNumber++; @endphp
                                         @endif
 
@@ -119,8 +127,16 @@
                                 <tr>
                                     <td>{{ $rowNumber }}</td>
                                     <td>{{ $selectedDocument->no_document ?? '-' }}</td>
-                                    <td>{{ $pasal->pasal ?? '-' }}</td>
-                                    <td>{{ $pasal->penjelasan ?? '-' }}</td>
+                                    <td>{{ $batangtubuh->batang_tubuh ?? '-' }}</td>
+                                    <td>
+                                        @if ($batangtubuh->gambar)
+                                        <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                        @elseif ($batangtubuh->penjelasan)
+                                            <p>{{ $batangtubuh->penjelasan }}</p>
+                                        @else
+                                            <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                        @endif
+                                    </td>
                                     <td colspan="5" class="text-center">-</td>                                    
                                 </tr>
                                 @php $rowNumber++; @endphp

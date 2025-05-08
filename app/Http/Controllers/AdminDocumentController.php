@@ -36,7 +36,7 @@ class AdminDocumentController extends Controller
 
     public function show(Document $document)
     {
-        $document->load('pasal');
+        $document->load('batangtubuh');
 
         return view('document.show', compact('document'));
     }

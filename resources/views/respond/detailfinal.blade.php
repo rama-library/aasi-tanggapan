@@ -23,7 +23,7 @@
     {{-- Search --}}
     <form method="GET" class="mb-3">
         <div class="input-group">
-            <input type="text" name="search" class="form-control" placeholder="Cari Pasal..." value="{{ request('search') }}">
+            <input type="text" name="search" class="form-control" placeholder="Cari Batang Tubuh..." value="{{ request('search') }}">
             <button class="btn btn-primary" type="submit">Cari</button>
         </div>
     </form>
@@ -36,7 +36,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Pasal</th>
+                            <th>Batang Tubuh</th>
                             <th>Penjelasan</th>
                             <th>Tanggapan</th>
                             <th>PIC</th>
@@ -49,7 +49,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($pasal as $index => $p)
+                        @forelse ($batangtubuh as $index => $p)
                             @php
                                 $responds = $p->respond;
                                 $rowspan = $responds->count() ?: 1;
@@ -65,9 +65,17 @@
                                 @foreach ($responds as $rIndex => $respond)
                                 <tr>
                                     @if ($rIndex === 0)
-                                        <td rowspan="{{ $rowspan }}">{{ ($pasal->currentPage() - 1) * $pasal->perPage() + $index + 1 }}</td>
-                                        <td rowspan="{{ $rowspan }}">{{ $p->pasal }}</td>
-                                        <td rowspan="{{ $rowspan }}">{{ $p->penjelasan }}</td>
+                                        <td rowspan="{{ $rowspan }}">{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
+                                        <td rowspan="{{ $rowspan }}">{{ $p->batang_tubuh }}</td>
+                                        <td rowspan="{{ $rowspan }}">
+                                            @if ($p->gambar)
+                                                <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                            @elseif ($p->penjelasan)
+                                                <p>{{ $p->penjelasan }}</p>
+                                            @else
+                                                <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                            @endif
+                                        </td>
                                     @endif
 
                                     {{-- Tanggapan --}}
@@ -100,10 +108,10 @@
                                     @if ($role === 'Reviewer')
                                         <td>
                                             @if (!$respond->is_deleted && $canReview)
-                                                <a href="{{ route('tanggapan.final.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
+                                                <a href="{{ route('tanggapan.final.edit', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Review</a>
                                                 <button type="button"
                                                     class="btn btn-sm btn-danger"
-                                                    onclick="hapusTanggapan('{{ route('tanggapan.final.destroy', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}')">
+                                                    onclick="hapusTanggapan('{{ route('tanggapan.final.destroy', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}')">
                                                     Hapus
                                                 </button>
                                             @elseif (!$canReview)
@@ -114,11 +122,19 @@
                                 </tr>
                                 @endforeach
                             @else
-                                {{-- Pasal tanpa tanggapan --}}
+                                {{-- batangtubuh tanpa tanggapan --}}
                                 <tr>
-                                    <td>{{ ($pasal->currentPage() - 1) * $pasal->perPage() + $index + 1 }}</td>
-                                    <td>{{ $p->pasal }}</td>
-                                    <td>{{ $p->penjelasan }}</td>
+                                    <td>{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
+                                    <td>{{ $p->batang_tubuh }}</td>
+                                    <td>
+                                        @if ($p->gambar)
+                                            <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                        @elseif ($p->penjelasan)
+                                            <p>{{ $p->penjelasan }}</p>
+                                        @else
+                                            <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                        @endif    
+                                    </td>
                                     <td colspan="5" class="text-center">Belum ada tanggapan.</td>
                                     @if ($role === 'Reviewer')
                                         <td>
@@ -133,14 +149,14 @@
                             @endif
                         @empty
                             <tr>
-                                <td colspan="9" class="text-center">Tidak ada pasal ditemukan.</td>
+                                <td colspan="9" class="text-center">Tidak ada batang tubuh ditemukan.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
 
                 <div class="mt-3">
-                    {{ $pasal->links('pagination::bootstrap-4') }}
+                    {{ $batangtubuh->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>

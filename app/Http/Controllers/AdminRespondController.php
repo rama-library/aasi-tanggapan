@@ -10,7 +10,7 @@ class AdminRespondController extends Controller
 {
     public function today()
     {
-        $tanggapanHariIni = Respond::with(['document', 'pasal', 'pic'])
+        $tanggapanHariIni = Respond::with(['document', 'batangtubuh', 'pic'])
             ->whereDate('created_at', Carbon::today())
             ->whereNotNull('tanggapan')
             ->get();

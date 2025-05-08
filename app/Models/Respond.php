@@ -11,9 +11,9 @@ class Respond extends Model
 
     protected $guarded = ['id'];
 
-    public function pasal()
+    public function batangtubuh()
     {
-        return $this->belongsTo(Pasal::class);
+        return $this->belongsTo(Batangtubuh::class);
     }
 
     public function document()

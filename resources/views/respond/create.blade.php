@@ -2,11 +2,11 @@
 
 @section('content')
 <div class="container-fluid">
-    <h4 class="mb-3">Tanggapan untuk Pasal: <strong>{{ $pasal->pasal }}</strong></h4>
+    <h4 class="mb-3">Tanggapan untuk Batang Tubuh: <strong>{{ $batangtubuh->batang_tubuh }}</strong></h4>
 
     <div class="card">
         <div class="card-body">
-            <form action="{{ route('respond.store', ['document' => $document->slug, 'pasal' => $pasal->id]) }}" method="POST">
+            <form action="{{ route('respond.store', ['document' => $document->slug, 'batangtubuh' => $batangtubuh->id]) }}" method="POST">
                 @csrf
                 <div class="mb-3">
                     <label for="tanggapan" class="form-label">Tanggapan</label>

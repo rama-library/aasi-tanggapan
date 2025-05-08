@@ -4,11 +4,20 @@
 <div class="container-fluid">
     <h4 class="mb-3">Detail Batang Tubuh</strong></h4>
 
-    {{-- Detail Pasal --}}
+    {{-- Detail Batang Tubuh --}}
     <div class="card mb-4">
         <div class="card-body">            
-            <p class="text-justify"><strong>Batang Tubuh:</strong> {{ $pasal->pasal }}</p>
-            <p class="text-justify"><strong>Penjelasan:</strong> {{ $pasal->penjelasan }}</p>
+            <p class="text-justify"><strong>Batang Tubuh:</strong> {{ $batangtubuh->batang_tubuh }}</p>
+            <p class="text-justify">
+                <strong>Penjelasan: </strong>
+                @if ($batangtubuh->gambar)
+                <br><img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" width="400" alt="Gambar Penjelasan">
+                @elseif ($batangtubuh->penjelasan)
+                    <p>{{ $batangtubuh->penjelasan }}</p>
+                @else
+                    <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                @endif
+            </p>
         </div>
     </div>
 
@@ -31,7 +40,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach ($pasal->respond as $index => $respond)
+                        @foreach ($batangtubuh->respond as $index => $respond)
                             <tr>
                                 <td>{{ $index + 1 }}</td>
                                 <td>{{ $respond->perusahaan ?? '-' }}</td>

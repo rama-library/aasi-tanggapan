@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-    <h4>Edit Tanggapan Pasal</h4>
+    <h4>Edit Tanggapan</h4>
 
     <div class="card">
         <div class="card-body">
@@ -11,18 +11,26 @@
                 $routeName = $isFinal ? 'tanggapan.final.update' : 'respond.update';
                 $backroute = $isFinal ? 'tanggapan.final.detail' : 'tanggapan.berlangsung.detail';
             @endphp
-            <form action="{{ route($routeName, ['document' => $document->slug, 'pasal' => $pasal->id, 'respond' => $respond->id]) }}" method="POST">
+            <form action="{{ route($routeName, ['document' => $document->slug, 'batangtubuh' => $batangtubuh->id, 'respond' => $respond->id]) }}" method="POST">
                 @csrf
                 @method('PUT')
 
                 <div class="mb-3">
-                    <label class="form-label"><strong>Pasal:</strong></label>
-                    <p class="form-control-plaintext">{{ $pasal->pasal }}</p>
+                    <label class="form-label"><strong>Batang Tubuh:</strong></label>
+                    <p class="form-control-plaintext">{{ $batangtubuh->batang_tubuh }}</p>
                 </div>
 
                 <div class="mb-3">
                     <label class="form-label"><strong>Penjelasan:</strong></label>
-                    <p class="form-control-plaintext">{{ $pasal->penjelasan }}</p>
+                    <p class="form-control-plaintext">
+                        @if ($batangtubuh->gambar)
+                            <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar batangtubuh">
+                        @elseif ($batangtubuh->penjelasan)
+                            {{ $batangtubuh->penjelasan }}
+                        @else
+                            Tidak ada penjelasan atau gambar.
+                        @endif
+                    </p>
                 </div>
 
                 <div class="mb-3">

@@ -10,8 +10,8 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-6 col-lg-12">
-                        <form action="{{ route('admin.pasal.store', ['document' => $document->slug]) }}" method="POST" class="mb-5 row g-3" enctype="multipart/form-data">
-                            @include('forms.pasalform', ['document' => $document, 'submit' => 'Tambah'])
+                        <form action="{{ route('admin.batangtubuh.store', ['document' => $document->slug]) }}" method="POST" class="mb-5 row g-3" enctype="multipart/form-data">
+                            @include('forms.batangtubuhform', ['document' => $document, 'submit' => 'Tambah'])
                         </form>
                     </div>
                 </div>

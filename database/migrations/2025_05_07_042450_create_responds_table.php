@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('responds', function (Blueprint $table) {
             $table->id();
             $table->foreignId('doc_id')->constrained('documents')->onDelete('cascade');
-            $table->foreignId('pasal_id')->constrained('pasals')->onDelete('cascade');
+            $table->foreignId('batangtubuh_id')->constrained('batang_tubuh')->onDelete('cascade');
             $table->foreignId('pic_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('reviewer_id')->nullable()->constrained('users')->nullOnDelete();
             $table->longText('tanggapan')->nullable(); // Bisa null jika reviewer hanya menghapus

@@ -19,9 +19,9 @@ class Document extends Model
 
     protected $with = 'author';
 
-    public function pasal()
+    public function batangtubuh()
     {
-        return $this->hasMany(Pasal::class, 'doc_id');
+        return $this->hasMany(Batangtubuh::class, 'doc_id');
     }
 
     public function author()

@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Batangtubuh;
 use App\Models\Document;
-use App\Models\Pasal;
 use App\Models\Respond;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -53,38 +53,38 @@ class RespondController extends Controller
     {
         $search = $request->input('search');
 
-        $pasalQuery = $document->pasal()->with(['respond.pic', 'respond.reviewer']);
+        $batangtubuhQuery = $document->batangtubuh()->with(['respond.pic', 'respond.reviewer']);
 
         if ($search) {
-            $pasalQuery->where('pasal', 'like', '%' . $search . '%');
+            $batangtubuhQuery->where('batang_tubuh', 'like', '%' . $search . '%');
         }
 
-        $pasal = $pasalQuery->paginate(10)->withQueryString();
+        $batangtubuh = $batangtubuhQuery->paginate(10)->withQueryString();
 
-        return view('respond.detail', compact('document', 'pasal', 'search'));
+        return view('respond.detail', compact('document', 'batangtubuh', 'search'));
     }
 
     public function showFinal(Request $request, Document $document)
     {
         $search = $request->input('search');
 
-        $pasalQuery = $document->pasal()->with(['respond.pic', 'respond.reviewer']);
+        $batangtubuhQuery = $document->batangtubuh()->with(['respond.pic', 'respond.reviewer']);
 
         if ($search) {
-            $pasalQuery->where('pasal', 'like', '%' . $search . '%');
+            $batangtubuhQuery->where('batangtubuh', 'like', '%' . $search . '%');
         }
 
-        $pasal = $pasalQuery->paginate(10)->withQueryString();
+        $batangtubuh = $batangtubuhQuery->paginate(10)->withQueryString();
 
-        return view('respond.detailfinal', compact('document', 'pasal', 'search'));
+        return view('respond.detailfinal', compact('document', 'batangtubuh', 'search'));
     }
 
-    public function create(Document $document, Pasal $pasal)
+    public function create(Document $document, Batangtubuh $batangtubuh)
     {
-        return view('respond.create', compact('document', 'pasal'));
+        return view('respond.create', compact('document', 'batangtubuh'));
     }
 
-    public function store(Request $request, Document $document, Pasal $pasal)
+    public function store(Request $request, Document $document, Batangtubuh $batangtubuh)
     {
         $request->validate([
             'tanggapan' => 'required|string',
@@ -92,7 +92,7 @@ class RespondController extends Controller
 
         Respond::create([
             'doc_id' => $document->id,
-            'pasal_id' => $pasal->id,
+            'batangtubuh_id' => $batangtubuh->id,
             'pic_id' => Auth::id(),
             'tanggapan' => $request->tanggapan,
             'perusahaan' => Auth::user()->company_name,
@@ -105,7 +105,7 @@ class RespondController extends Controller
         ]);
     }
 
-    public function edit(Document $document, Pasal $pasal, Respond $respond)
+    public function edit(Document $document, Batangtubuh $batangtubuh, Respond $respond)
     {
         $user = Auth::user();
         $now = now();
@@ -139,11 +139,11 @@ class RespondController extends Controller
             abort(403);
         }
 
-        return view('respond.edit', compact('document', 'pasal', 'respond'));
+        return view('respond.edit', compact('document', 'batangtubuh', 'respond'));
     }
 
 
-    public function update(Request $request, Document $document, $pasalId, $respondId)
+    public function update(Request $request, Document $document, $batangtubuhId, $respondId)
     {
         $request->validate([
             'tanggapan' => 'required|string',
@@ -152,7 +152,7 @@ class RespondController extends Controller
 
         $respond = Respond::where('id', $respondId)
             ->where('doc_id', $document->id)
-            ->where('pasal_id', $pasalId)
+            ->where('batangtubuh_id', $batangtubuhId)
             ->firstOrFail();
 
         $user = Auth::user();
@@ -217,7 +217,7 @@ class RespondController extends Controller
 
 
 
-    public function destroy(Request $request, Document $document, $pasalId, $respondId)
+    public function destroy(Request $request, Document $document, $batangtubuhId, $respondId)
     {
         $respond = Respond::findOrFail($respondId);
 

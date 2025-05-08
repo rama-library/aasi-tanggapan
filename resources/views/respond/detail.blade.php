@@ -25,7 +25,7 @@
     {{-- Search --}}
     <form method="GET" class="mb-3">
         <div class="input-group">
-            <input type="text" name="search" class="form-control" placeholder="Cari Pasal..." value="{{ request('search') }}">
+            <input type="text" name="search" class="form-control" placeholder="Cari Batang Tubuh..." value="{{ request('search') }}">
             <button class="btn btn-primary" type="submit">Cari</button>
         </div>
     </form>
@@ -38,7 +38,7 @@
                     <thead>
                         <tr>
                             <th>No</th>
-                            <th>Pasal</th>
+                            <th>Batang Tubuh</th>
                             <th>Penjelasan</th>
                             <th>Tanggapan</th>
                             <th>PIC</th>
@@ -49,7 +49,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @forelse ($pasal as $index => $p)
+                        @forelse ($batangtubuh as $index => $p)
                             @php
                                 $responds = $p->respond;
                                 $rowspan = $responds->count() ?: 1;
@@ -66,11 +66,19 @@
                                 @foreach ($responds as $rIndex => $respond)
                                 <tr>
                                     @if ($rIndex === 0)
-                                        <td rowspan="{{ $rowspan }}">{{ ($pasal->currentPage() - 1) * $pasal->perPage() + $index + 1 }}</td>
-                                        <td rowspan="{{ $rowspan }}">{{ $p->pasal }}</td>
-                                        <td rowspan="{{ $rowspan }}">{{ $p->penjelasan }}</td>
+                                        <td rowspan="{{ $rowspan }}">{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
+                                        <td rowspan="{{ $rowspan }}">{{ $p->batang_tubuh }}</td>
+                                        <td rowspan="{{ $rowspan }}">
+                                            @if ($p->gambar)
+                                                <p><img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan"></p>
+                                            @elseif ($p->penjelasan)
+                                                <p>{{ $p->penjelasan }}</p>
+                                            @else
+                                                <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                            @endif
+                                        </td>
                                     @endif
-                            
+                                
                                     <td>
                                         @if ($respond->is_deleted)
                                             <del class="muted">{{ json_decode($respond->original_data)->tanggapan ?? '-' }} </del>
@@ -101,18 +109,17 @@
                                                 $tanggapanDeadline = \Carbon\Carbon::parse($document->due_date . ' ' . $document->due_time);
                                                 $canEditTanggapan = $now->lte($tanggapanDeadline);
                                             @endphp
-                                    
                                             @if ($canEditTanggapan)
-                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
+                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
                                             @else
                                                 <span class="badge bg-secondary">Waktu Habis</span>
                                             @endif
                                         @elseif ($isReviewer && !$respond->is_deleted)
                                             @if ($canReview)
-                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Review</a>
+                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Review</a>
                                                 <button type="button"
                                                     class="btn btn-sm btn-danger"
-                                                    onclick="hapusTanggapan('{{ route('respond.destroy', ['document' => $document->slug, 'pasal' => $p->id, 'respond' => $respond->id]) }}')">
+                                                    onclick="hapusTanggapan('{{ route('respond.destroy', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}')">
                                                     Hapus
                                                 </button>
                                             @else
@@ -121,32 +128,40 @@
                                         @else
                                             -
                                         @endif
-                                    </td>                                                            
-                                </tr>
+                                    </td>
+                                </tr>                                
                                 @endforeach
                             @endif
                             @if ($isPIC && !$userResponded && $now->lte(\Carbon\Carbon::parse($document->due_date . ' ' . $document->due_time)))
                                 <tr>
-                                    <td>{{ ($pasal->currentPage() - 1) * $pasal->perPage() + $index + 1 }}</td>
-                                    <td>{{ $p->pasal }}</td>
-                                    <td>{{ $p->penjelasan }}</td>
+                                    <td>{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
+                                    <td>{{ $p->batang_tubuh }}</td>
+                                    <td>
+                                        @if ($p->gambar)
+                                            <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                        @elseif ($p->penjelasan)
+                                            <p>{{ $p->penjelasan }}</p>
+                                        @else
+                                            <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                        @endif                                    
+                                    </td>
                                     <td colspan="5" class="text-centar">Belum Ada Tanggapan</td>
                                     <td class="text-center">
-                                        <a href="{{ route('respond.create', ['document' => $document->slug, 'pasal' => $p->id]) }}" class="btn btn-sm btn-primary">Tanggapi</a>
+                                        <a href="{{ route('respond.create', ['document' => $document->slug, 'batangtubuh' => $p->id]) }}" class="btn btn-sm btn-primary">Tanggapi</a>
                                     </td>
                                 </tr>
                             
                                 @endif                        
                             @empty
                             <tr>
-                                <td colspan="9" class="text-center">Tidak ada pasal ditemukan.</td>
+                                <td colspan="9" class="text-center">Tidak ada batang tubuh ditemukan.</td>
                             </tr>
                         @endforelse
                     </tbody>
                 </table>
                 {{-- Pagination --}}
                 <div class="mt-3">
-                    {{ $pasal->links('pagination::bootstrap-4') }}
+                    {{ $batangtubuh->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>

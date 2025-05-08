@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Exports\LaporanExport;
+use App\Models\Batangtubuh;
 use App\Models\Document;
-use App\Models\Pasal;
 use App\Models\Respond;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
@@ -25,7 +25,7 @@ class ReportController extends Controller
             $jenis = $request->type;
 
             if ($selectedDocument) {
-                $query = Pasal::with(['respond' => function ($q) use ($jenis) {
+                $query = Batangtubuh::with(['respond' => function ($q) use ($jenis) {
                         if ($jenis === 'final') {
                             $q->where('is_deleted', false);
                         }
@@ -36,7 +36,7 @@ class ReportController extends Controller
                 if ($request->filled('search')) {
                     $search = $request->search;
                     $query->where(function ($q) use ($search) {
-                        $q->where('pasal', 'like', "%$search%")
+                        $q->where('batang_tubuh', 'like', "%$search%")
                         ->orWhere('penjelasan', 'like', "%$search%");
                     });
                 }
@@ -54,21 +54,21 @@ class ReportController extends Controller
         $jenis = $request->type;
     
         // Ambil semua tanggapan
-        $responds = Respond::with(['pasal', 'pic', 'reviewer', 'document'])
+        $responds = Respond::with(['batangtubuh', 'pic', 'reviewer', 'document'])
             ->where('doc_id', $document->id)
             ->when($jenis === 'final', fn($q) => $q->where('is_deleted', false))
             ->get();
     
-        // Ambil semua pasal
-        $allPasal = $document->pasal()->get();
+        // Ambil semua batangtubuh
+        $allBatangtubuh = $document->batangtubuh()->get();
     
-        // Gabungkan: pastikan setiap pasal tetap muncul meskipun tidak ada tanggapan
+        // Gabungkan: pastikan setiap batangtubuh tetap muncul meskipun tidak ada tanggapan
         $merged = collect();
-        foreach ($allPasal as $pasal) {
-            $related = $responds->where('pasal_id', $pasal->id);
+        foreach ($allBatangtubuh as $batangtubuh) {
+            $related = $responds->where('batangtubuh_id', $batangtubuh->id);
             if ($related->isEmpty()) {
                 $merged->push((object)[
-                    'pasal' => $pasal,
+                    'batangtubuh' => $batangtubuh,
                     'document' => $document,
                     'tanggapan' => null,
                     'pic' => null,

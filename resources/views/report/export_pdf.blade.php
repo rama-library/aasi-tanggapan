@@ -92,7 +92,7 @@
                 <thead>
                     <tr>
                         <th>No</th>
-                        <th>Pasal</th>
+                        <th>Batang Tubuh</th>
                         <th>Penjelasan</th>
                         <th>Tanggapan</th>
                         <th>PIC</th>
@@ -103,7 +103,7 @@
                 </thead>
                 @php
                     $grouped = $result->groupBy(function ($item) {
-                        return $item->pasal->pasal . '|' . $item->pasal->penjelasan;
+                        return $item->batangtubuh->batang_tubuh . '|' . $item->batangtubuh->penjelasan . '|' . $item->batangtubuh->gambar;
                     });
                 @endphp
     
@@ -112,8 +112,16 @@
                         <tr>
                             @if ($i === 0)
                                 <td rowspan="{{ $group->count() }}">{{ $loop->parent->iteration }}</td>
-                                <td rowspan="{{ $group->count() }}">{{ $respond->pasal->pasal }}</td>
-                                <td rowspan="{{ $group->count() }}">{{ $respond->pasal->penjelasan }}</td>
+                                <td rowspan="{{ $group->count() }}">{{ $respond->batangtubuh->batang_tubuh }}</td>
+                                <td rowspan="{{ $group->count() }}">
+                                    @if ($respond->batangtubuh->gambar)
+                                    <img src="{{ public_path('storage/' . $respond->batangtubuh->gambar) }}" style="max-width: 200px;" alt="Gambar Penjelasan">
+                                    @elseif ($respond->batangtubuh->penjelasan)
+                                        <p>{{ $respond->batangtubuh->penjelasan }}</p>
+                                    @else
+                                        <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                    @endif
+                                </td>
                             @endif
                             <td>
                                 @if ($respond->is_deleted)

@@ -5,7 +5,7 @@ use App\Http\Controllers\{
     AuthController, HomeController, ProfileController,
     RespondController, ReportController,
     AdminAccountController, AdminDocumentController,
-    AdminPasalController, AdminPermissionController,
+    AdminBatangTubuhController, AdminPermissionController,
     AdminRespondController, AdminRoleController
 };
 
@@ -51,7 +51,7 @@ Route::middleware(['auth'])->group(function () {
     | Role-based Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:PIC|Reviewer'])->prefix('tanggapan-berlangsung/{document:slug}/pasal/{pasal}')->group(function () {
+    Route::middleware(['role:PIC|Reviewer'])->prefix('tanggapan-berlangsung/{document:slug}/batangtubuh/{batangtubuh}')->group(function () {
         Route::get('/create', [RespondController::class, 'create'])->name('respond.create');
         Route::post('/', [RespondController::class, 'store'])->name('respond.store');
         Route::get('/respond/{respond}/edit', [RespondController::class, 'edit'])->name('respond.edit');
@@ -60,10 +60,10 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['role:Reviewer'])->group(function () {
         // Delete di Berlangsung
-        Route::delete('tanggapan-berlangsung/{document:slug}/pasal/{pasal}/respond/{respond}', [RespondController::class, 'destroy'])->name('respond.destroy');
+        Route::delete('tanggapan-berlangsung/{document:slug}/batangtubuh/{batangtubuh}/respond/{respond}', [RespondController::class, 'destroy'])->name('respond.destroy');
 
         // Edit di Final
-        Route::prefix('tanggapan-final/{document:slug}/pasal/{pasal}/respond/{respond}')->group(function () {
+        Route::prefix('tanggapan-final/{document:slug}/batangtubuh/{batangtubuh}/respond/{respond}')->group(function () {
             Route::get('/edit', [RespondController::class, 'edit'])->name('tanggapan.final.edit');
             Route::put('/', [RespondController::class, 'update'])->name('tanggapan.final.update');
             Route::delete('/', [RespondController::class, 'destroy'])->name('tanggapan.final.destroy');
@@ -84,20 +84,20 @@ Route::middleware(['auth'])->group(function () {
         Route::get('users/{user}/change-password', [AdminAccountController::class, 'changePassword'])->name('users.change-password');
         Route::put('users/{user}/update-password', [AdminAccountController::class, 'updatePassword'])->name('users.update-password');
 
-        // Dokumen dan Pasal
+        // Dokumen dan batangtubuh
         Route::get('documents/checkSlug', [AdminDocumentController::class, 'checkSlug'])->name('documents.checkSlug');
         Route::resource('documents', AdminDocumentController::class);
 
-        Route::prefix('documents/{document:slug}/pasal')->group(function () {
-            Route::get('/', [AdminPasalController::class, 'index'])->name('pasal.index');
-            Route::get('/create', [AdminPasalController::class, 'create'])->name('pasal.create');
-            Route::post('/', [AdminPasalController::class, 'store'])->name('pasal.store');
-            Route::get('/{pasal}/edit', [AdminPasalController::class, 'edit'])->name('pasal.edit');
-            Route::put('/{pasal}', [AdminPasalController::class, 'update'])->name('pasal.update');
-            Route::get('/{pasal}', [AdminPasalController::class, 'show'])->name('pasal.show');
+        Route::prefix('documents/{document:slug}/batangtubuh')->group(function () {
+            Route::get('/', [AdminBatangTubuhController::class, 'index'])->name('batangtubuh.index');
+            Route::get('/create', [AdminBatangTubuhController::class, 'create'])->name('batangtubuh.create');
+            Route::post('/', [AdminBatangTubuhController::class, 'store'])->name('batangtubuh.store');
+            Route::get('/{batangtubuh}/edit', [AdminBatangTubuhController::class, 'edit'])->name('batangtubuh.edit');
+            Route::put('/{batangtubuh}', [AdminBatangTubuhController::class, 'update'])->name('batangtubuh.update');
+            Route::get('/{batangtubuh}', [AdminBatangTubuhController::class, 'show'])->name('batangtubuh.show');
         });
 
-        Route::delete('pasal/{pasal}', [AdminPasalController::class, 'destroy'])->name('pasal.destroy');
+        Route::delete('batangtubuh/{batangtubuh}', [AdminBatangTubuhController::class, 'destroy'])->name('batangtubuh.destroy');
 
         // Statistik respond
         Route::get('responds/today', [AdminRespondController::class, 'today'])->name('responds.today');
