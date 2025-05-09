@@ -44,7 +44,7 @@
                             <th>PIC</th>
                             <th>Perusahaan</th>
                             <th>Reviewer</th>
-                            <th>Alasan</th>
+                            <th>Alasan</th>                        
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -116,20 +116,9 @@
                                                 <a href="{{ route('respond.edit', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Edit</a>
                                             @else
                                                 <span class="badge bg-secondary">Waktu Habis</span>
-                                            @endif
-                                        @elseif ($isReviewer && !$respond->is_deleted)
-                                            @if ($canReview)
-                                                <a href="{{ route('respond.edit', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Review</a>
-                                                <button type="button"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="hapusTanggapan('{{ route('respond.destroy', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}')">
-                                                    Hapus
-                                                </button>
-                                            @else
-                                                <span class="badge bg-secondary">Waktu Review Habis</span>
-                                            @endif
+                                            @endif                                        
                                         @else
-                                            -
+                                            No Action
                                         @endif
                                     </td>
                                 </tr>                                

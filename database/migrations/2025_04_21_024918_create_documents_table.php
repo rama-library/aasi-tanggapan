@@ -19,6 +19,8 @@ return new class extends Migration
             $table->foreignId('user_id')->nullable();
             $table->date('due_date');
             $table->time('due_time');
+            $table->date('review_due_date')->nullable();
+            $table->time('review_due_time')->nullable();
             $table->timestamps();
         });
     }

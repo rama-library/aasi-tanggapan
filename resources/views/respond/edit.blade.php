@@ -23,13 +23,16 @@
                 <div class="mb-3">
                     <label class="form-label"><strong>Penjelasan:</strong></label>
                     <p class="form-control-plaintext">
-                        @if ($batangtubuh->gambar)
-                            <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar batangtubuh">
+                        @if ($batangtubuh->penjelasan && $batangtubuh->gambar)
+                        <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" width="250" alt="Gambar Penjelasan">
+                        <br><p>{{ $batangtubuh->penjelasan }}</p>
+                        @elseif ($batangtubuh->gambar)
+                        <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
                         @elseif ($batangtubuh->penjelasan)
-                            {{ $batangtubuh->penjelasan }}
+                        <p>{{ $batangtubuh->penjelasan }}</p>
                         @else
-                            Tidak ada penjelasan atau gambar.
-                        @endif
+                        <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                        @endif 
                     </p>
                 </div>
 

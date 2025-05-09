@@ -87,6 +87,10 @@ class RespondController extends Controller
             return $this->errorRedirect('Tanggapan Sudah Melewati Batas Waktu Untuk di Review.');
         }
 
+        if ($user->hasRole('Reviewer') && now()->lessThan($document->due_date . ' ' . $document->due_time)){
+            return $this->errorRedirect('Review Belum Diperbolehkan Sebelum Due Date.');
+        }
+
         if ($user->hasRole('PIC')) {
             if ($respond->pic_id !== $user->id) {
                 abort(403, 'Anda hanya dapat mengedit tanggapan Anda sendiri.');
@@ -153,6 +157,10 @@ class RespondController extends Controller
     public function destroy(Request $request, Document $document, $batangtubuhId, $respondId)
     {
         $respond = Respond::findOrFail($respondId);
+
+        if (Auth::user()->hasRole('Reviewer') && now()->lessThan($document->due_date . ' ' . $document->due_time)) {
+            return $this->errorRedirect('Hapus Belum Diperbolehkan Sebelum Due Date.');
+        }
 
         $this->storeOriginalData($respond);
 

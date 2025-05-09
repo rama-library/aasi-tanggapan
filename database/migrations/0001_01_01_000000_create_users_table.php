@@ -19,6 +19,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('company_name')->nullable();
             $table->string('department')->nullable();
+            $table->string('last_login_ip')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });
