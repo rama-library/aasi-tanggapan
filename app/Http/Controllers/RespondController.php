@@ -28,55 +28,33 @@ class RespondController extends Controller
     public function indexFinal(Request $request)
     {
         $search = $request->input('search');
+        $now = now();
 
-        $documents = Document::where(function ($query) use ($search) {
-                if ($search) {
-                    $query->where('no_document', 'like', "%{$search}%")
-                        ->orWhere('perihal', 'like', "%{$search}%");
-                }
-            })
-            ->where(function ($query) {
-                $now = now();
-                $query->where('due_date', '<', $now->toDateString())
-                    ->orWhere(function ($subQuery) use ($now) {
-                        $subQuery->where('due_date', $now->toDateString())
-                                ->where('due_time', '<', $now->format('H:i:s'));
-                    });
-            })
-            ->orderByDesc('created_at')
-            ->paginate(10);
+        $documents = Document::when($search, function ($query) use ($search) {
+            $query->where('no_document', 'like', "%{$search}%")
+                ->orWhere('perihal', 'like', "%{$search}%");
+        })
+        ->where(function ($query) use ($now) {
+            $query->where('due_date', '<', $now->toDateString())
+                ->orWhere(function ($subQuery) use ($now) {
+                    $subQuery->where('due_date', $now->toDateString())
+                        ->where('due_time', '<', $now->format('H:i:s'));
+                });
+        })
+        ->latest()
+        ->paginate(10);
 
         return view('respond.indexfinal', compact('documents'));
     }
 
     public function show(Request $request, Document $document)
     {
-        $search = $request->input('search');
-
-        $batangtubuhQuery = $document->batangtubuh()->with(['respond.pic', 'respond.reviewer']);
-
-        if ($search) {
-            $batangtubuhQuery->where('batang_tubuh', 'like', '%' . $search . '%');
-        }
-
-        $batangtubuh = $batangtubuhQuery->paginate(10)->withQueryString();
-
-        return view('respond.detail', compact('document', 'batangtubuh', 'search'));
+        return $this->showBatangTubuh($request, $document, 'respond.detail');
     }
 
     public function showFinal(Request $request, Document $document)
     {
-        $search = $request->input('search');
-
-        $batangtubuhQuery = $document->batangtubuh()->with(['respond.pic', 'respond.reviewer']);
-
-        if ($search) {
-            $batangtubuhQuery->where('batangtubuh', 'like', '%' . $search . '%');
-        }
-
-        $batangtubuh = $batangtubuhQuery->paginate(10)->withQueryString();
-
-        return view('respond.detailfinal', compact('document', 'batangtubuh', 'search'));
+        return $this->showBatangTubuh($request, $document, 'respond.detailfinal');
     }
 
     public function create(Document $document, Batangtubuh $batangtubuh)
@@ -98,45 +76,25 @@ class RespondController extends Controller
             'perusahaan' => Auth::user()->company_name,
         ]);
         
-        return redirect()->route('tanggapan.berlangsung.detail', $document->slug)->with([
-            'alert_type' => 'success',
-            'alert_title' => 'Tersimpan',
-            'alert' => 'Tanggapan berhasil ditambahkan.'
-        ]);
+        return $this->successRedirect($document->slug, 'Tanggapan berhasil ditambahkan.');
     }
 
     public function edit(Document $document, Batangtubuh $batangtubuh, Respond $respond)
     {
         $user = Auth::user();
-        $now = now();
 
-        if ($user->hasRole('Reviewer')) {
-            $reviewDeadline = Carbon::parse($document->review_due_date . ' ' . $document->review_due_time);
+        if ($user->hasRole('Reviewer') && $this->isPastReviewDeadline($document)) {
+            return $this->errorRedirect('Tanggapan Sudah Melewati Batas Waktu Untuk di Review.');
+        }
 
-            if ($now->gt($reviewDeadline)) {
-                return back()->with([
-                    'alert_type' => 'error',
-                    'alert_title' => 'Prohibited',
-                    'alert' => 'Tanggapan Sudah Melewati Batas Waktu Untuk di Review.'
-                ]);
-            }
-        } elseif ($user->hasRole('PIC')) {
-            // Cek apakah user adalah pemilik tanggapan
+        if ($user->hasRole('PIC')) {
             if ($respond->pic_id !== $user->id) {
                 abort(403, 'Anda hanya dapat mengedit tanggapan Anda sendiri.');
             }
 
-            // Cek batas waktu PIC
-            $dueDate = Carbon::parse($document->due_date . ' ' . $document->due_time);
-            if ($now->gt($dueDate)) {
-                return back()->with([
-                    'alert_type' => 'error',
-                    'alert_title' => 'Terlambat',
-                    'alert' => 'Waktu untuk mengedit tanggapan telah habis.'
-                ]);
+            if ($this->isPastDueDate($document)) {
+                return $this->errorRedirect('Waktu untuk mengedit tanggapan telah habis.');
             }
-        } else {
-            abort(403);
         }
 
         return view('respond.edit', compact('document', 'batangtubuh', 'respond'));
@@ -150,96 +108,117 @@ class RespondController extends Controller
             'alasan' => 'required|string',
         ]);
 
-        $respond = Respond::where('id', $respondId)
-            ->where('doc_id', $document->id)
-            ->where('batangtubuh_id', $batangtubuhId)
-            ->firstOrFail();
+        $respond = Respond::where([
+            'id' => $respondId,
+            'doc_id' => $document->id,
+            'batangtubuh_id' => $batangtubuhId
+        ])->firstOrFail();
 
         $user = Auth::user();
-        $now = now();
 
         if ($user->hasRole('Reviewer')) {
-            $reviewDeadline = Carbon::parse($document->review_due_date . ' ' . $document->review_due_time);
-            if ($now->gt($reviewDeadline)) {
-                return back()->with([
-                    'alert_type' => 'error',
-                    'alert_title' => 'Terlambat',
-                    'alert' => 'Waktu review sudah habis.'
-                ]);
+            if ($this->isPastReviewDeadline($document)) {
+                return $this->errorRedirect('Waktu review sudah habis.');
             }
 
-            $respond->original_data = json_encode([
-                'tanggapan' => $respond->tanggapan,
-                'alasan' => $respond->alasan,
-                'reviewer_id' => $respond->reviewer_id,
-                'edited_at' => now()->toDateTimeString(),
+            $this->storeOriginalData($respond);
+            $respond->fill([
+                'tanggapan' => $request->tanggapan,
+                'alasan' => $request->alasan,
+                'reviewer_id' => $user->id,
             ]);
-
-            $respond->tanggapan = $request->tanggapan;
-            $respond->alasan = $request->alasan;
-            $respond->reviewer_id = $user->id;
         } elseif ($user->hasRole('PIC')) {
-            // Cek kepemilikan dan batas waktu
             if ($respond->pic_id !== $user->id) {
-                abort(403, 'Anda hanya dapat mengedit tanggapan Anda sendiri.');
+                abort(403);
             }
 
-            $dueDate = Carbon::parse($document->due_date . ' ' . $document->due_time);
-            if ($now->gt($dueDate)) {
-                return back()->with([
-                    'alert_type' => 'error',
-                    'alert_title' => 'Terlambat',
-                    'alert' => 'Waktu edit tanggapan sudah habis.'
-                ]);
+            if ($this->isPastDueDate($document)) {
+                return $this->errorRedirect('Waktu edit tanggapan sudah habis.');
             }
 
-            $respond->original_data = json_encode([
-                'tanggapan' => $respond->tanggapan,
-                'alasan' => $respond->alasan,
-                'pic_id' => $respond->pic_id,
-                'edited_at' => now()->toDateTimeString(),
+            $this->storeOriginalData($respond);
+            $respond->fill([
+                'tanggapan' => $request->tanggapan,
+                'alasan' => $request->alasan,
             ]);
-
-            $respond->tanggapan = $request->tanggapan;
-            $respond->alasan = $request->alasan;
         } else {
             abort(403);
         }
 
         $respond->save();
 
-        return redirect()->route('tanggapan.berlangsung.detail', $document->slug)->with([
-            'alert_type' => 'success',
-            'alert_title' => 'Berhasil',
-            'alert' => 'Tanggapan berhasil diperbarui.'
-        ]);
+        return $this->successRedirect($document->slug, 'Tanggapan berhasil diperbarui.');
     }
-
-
 
     public function destroy(Request $request, Document $document, $batangtubuhId, $respondId)
     {
         $respond = Respond::findOrFail($respondId);
 
-        // Simpan data sebelum dihapus ke original_data
+        $this->storeOriginalData($respond);
+
         $respond->update([
             'alasan' => $request->alasan,
-            'original_data' => json_encode([
-                'tanggapan' => $respond->tanggapan,
-                'pic_id' => $respond->pic_id,
-                'perusahaan' => $respond->perusahaan,
-                'reviewer_id' => $respond->reviewer_id,
-            ]),
-            'tanggapan' => null, // Kosongkan isinya karena dihapus
+            'tanggapan' => null,
             'reviewer_id' => Auth::id(),
             'is_deleted' => true,
         ]);
 
-        return redirect()->back()->with([
+        return $this->successRedirect($document->slug, 'Tanggapan berhasil dihapus.');
+    }
+
+    /* ========== Helper Functions ========== */
+
+    private function isPastDueDate(Document $document)
+    {
+        return now()->gt(Carbon::parse($document->due_date . ' ' . $document->due_time));
+    }
+
+    private function isPastReviewDeadline(Document $document)
+    {
+        return now()->gt(Carbon::parse($document->review_due_date . ' ' . $document->review_due_time));
+    }
+
+    private function storeOriginalData(Respond $respond)
+    {
+        $respond->original_data = json_encode([
+            'tanggapan' => $respond->tanggapan,
+            'alasan' => $respond->alasan,
+            'pic_id' => $respond->pic_id,
+            'reviewer_id' => $respond->reviewer_id,
+            'edited_at' => now()->toDateTimeString(),
+        ]);
+    }
+
+    private function successRedirect($slug, $message)
+    {
+        return redirect()->route('tanggapan.berlangsung.detail', $slug)->with([
             'alert_type' => 'success',
             'alert_title' => 'Berhasil',
-            'alert' => 'Tanggapan berhasil dihapus.'
+            'alert' => $message
         ]);
+    }
+
+    private function errorRedirect($message)
+    {
+        return back()->with([
+            'alert_type' => 'error',
+            'alert_title' => 'Terlambat',
+            'alert' => $message
+        ]);
+    }
+
+    private function showBatangTubuh(Request $request, Document $document, $view)
+    {
+        $search = $request->input('search');
+        $batangtubuhQuery = $document->batangtubuh()->with(['respond.pic', 'respond.reviewer']);
+
+        if ($search) {
+            $batangtubuhQuery->where('batang_tubuh', 'like', "%$search%");
+        }
+
+        $batangtubuh = $batangtubuhQuery->paginate(10)->withQueryString();
+
+        return view($view, compact('document', 'batangtubuh', 'search'));
     }
 
 }

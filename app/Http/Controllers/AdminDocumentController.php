@@ -13,8 +13,7 @@ class AdminDocumentController extends Controller
     public function index()
     {
         return view('document.index', [
-            'documents' => Document::all(),
-            'author' => User::all(),
+            'documents' => Document::with('author')->get(),
         ]);
     }
 
@@ -43,6 +42,7 @@ class AdminDocumentController extends Controller
 
     public function edit(Document $document)
     {
+        $document->load('author');
         return view('document.edit', compact('document'));
     }
 

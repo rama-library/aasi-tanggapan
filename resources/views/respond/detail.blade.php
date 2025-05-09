@@ -69,13 +69,16 @@
                                         <td rowspan="{{ $rowspan }}">{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
                                         <td rowspan="{{ $rowspan }}">{{ $p->batang_tubuh }}</td>
                                         <td rowspan="{{ $rowspan }}">
-                                            @if ($p->gambar)
-                                                <p><img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan"></p>
+                                            @if ($p->penjelasan && $p->gambar)
+                                            <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                            <br><p>{{ $p->penjelasan }}</p>
+                                            @elseif ($p->gambar)
+                                            <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
                                             @elseif ($p->penjelasan)
-                                                <p>{{ $p->penjelasan }}</p>
+                                            <p>{{ $p->penjelasan }}</p>
                                             @else
                                                 <p><em>Tidak ada penjelasan atau gambar.</em></p>
-                                            @endif
+                                            @endif                                              
                                         </td>
                                     @endif
                                 
@@ -137,13 +140,16 @@
                                     <td>{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
                                     <td>{{ $p->batang_tubuh }}</td>
                                     <td>
-                                        @if ($p->gambar)
-                                            <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                        @if ($p->penjelasan && $p->gambar)
+                                        <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                        <br><p>{{ $p->penjelasan }}</p>
+                                        @elseif ($p->gambar)
+                                        <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
                                         @elseif ($p->penjelasan)
-                                            <p>{{ $p->penjelasan }}</p>
+                                        <p>{{ $p->penjelasan }}</p>
                                         @else
                                             <p><em>Tidak ada penjelasan atau gambar.</em></p>
-                                        @endif                                    
+                                        @endif                                  
                                     </td>
                                     <td colspan="5" class="text-centar">Belum Ada Tanggapan</td>
                                     <td class="text-center">

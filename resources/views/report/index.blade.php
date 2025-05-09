@@ -90,13 +90,16 @@
                                             <td rowspan="{{ $filteredResponds->count() }}">{{ $selectedDocument->no_document ?? '-' }}</td>
                                             <td rowspan="{{ $filteredResponds->count() }}">{{ $batangtubuh->batang_tubuh ?? '-' }}</td>
                                             <td rowspan="{{ $filteredResponds->count() }}">
-                                                @if ($batangtubuh->gambar)
+                                                @if ($batangtubuh->penjelasan && $batangtubuh->gambar)
+                                                <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                                <br><p>{{ $batangtubuh->penjelasan }}</p>
+                                                @elseif ($batangtubuh->gambar)
                                                 <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
                                                 @elseif ($batangtubuh->penjelasan)
-                                                    <p>{{ $batangtubuh->penjelasan }}</p>
+                                                <p>{{ $batangtubuh->penjelasan }}</p>
                                                 @else
                                                     <p><em>Tidak ada penjelasan atau gambar.</em></p>
-                                                @endif
+                                                @endif                                                
                                             </td>
                                             @php $rowNumber++; @endphp
                                         @endif
@@ -129,13 +132,16 @@
                                     <td>{{ $selectedDocument->no_document ?? '-' }}</td>
                                     <td>{{ $batangtubuh->batang_tubuh ?? '-' }}</td>
                                     <td>
-                                        @if ($batangtubuh->gambar)
+                                        @if ($batangtubuh->penjelasan && $batangtubuh->gambar)
+                                        <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
+                                        <br><p>{{ $batangtubuh->penjelasan }}</p>
+                                        @elseif ($batangtubuh->gambar)
                                         <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
                                         @elseif ($batangtubuh->penjelasan)
-                                            <p>{{ $batangtubuh->penjelasan }}</p>
+                                        <p>{{ $batangtubuh->penjelasan }}</p>
                                         @else
                                             <p><em>Tidak ada penjelasan atau gambar.</em></p>
-                                        @endif
+                                        @endif  
                                     </td>
                                     <td colspan="5" class="text-center">-</td>                                    
                                 </tr>

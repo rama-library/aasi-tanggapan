@@ -107,8 +107,8 @@ class AdminBatangTubuhController extends Controller
     {
         $request->validate([
             'batang_tubuh' => 'required',
-            'penjelasan' => 'nullable|required_without:gambar',
-            'gambar' => 'nullable|image|max:2048|required_without:penjelasan',
+            'penjelasan' => 'nullable',
+            'gambar' => 'nullable|image|max:2048',
         ]);
     }
 

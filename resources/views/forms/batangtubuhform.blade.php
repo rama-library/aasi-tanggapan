@@ -24,21 +24,3 @@
     <button type="submit" class="btn btn-success me-2">{{ $submit ?? 'Simpan' }}</button>
     <a href="{{ route('admin.documents.show', $document->slug) }}" class="btn btn-danger me-2">Kembali</a>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const penjelasan = document.getElementById('penjelasan');
-        const gambarInput = document.getElementById('gambar');
-    
-        function toggleInputs() {
-            if (penjelasan.value.trim() !== '') {
-                gambarInput.parentElement.style.display = 'none';
-            } else {
-                gambarInput.parentElement.style.display = 'block';
-            }
-        }
-    
-        penjelasan.addEventListener('input', toggleInputs);
-        toggleInputs();
-    });
-</script>    

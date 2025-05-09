@@ -38,13 +38,16 @@
                             <td>{{ $index + 1 }}</td>
                             <td class="text-justify">{{ $batangtubuh->batang_tubuh }}</td>
                             <td class="text-justify">
-                                @if ($batangtubuh->gambar)
-                                    <img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" width="300" alt="Gambar Batang Tubuh">
+                                @if ($batangtubuh->penjelasan && $batangtubuh->gambar)
+                                <br><img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" width="200" alt="Gambar Penjelasan">
+                                <p>{{ $batangtubuh->penjelasan }}</p>
+                                @elseif ($batangtubuh->gambar)
+                                <br><img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" width="200" alt="Gambar Penjelasan">
                                 @elseif ($batangtubuh->penjelasan)
-                                    <p>{{ $batangtubuh->penjelasan }}</p>
+                                <p>{{ $batangtubuh->penjelasan }}</p>
                                 @else
                                     <p><em>Tidak ada penjelasan atau gambar.</em></p>
-                                @endif                                
+                                @endif                             
                             </td>
                             <td>
                                 <a href="{{ route('admin.batangtubuh.show', ['document' => $document->slug, 'batangtubuh' => $batangtubuh->id]) }}" class="badge bg-info d-inline-flex align-items-center">
