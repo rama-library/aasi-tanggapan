@@ -122,7 +122,7 @@ class AdminAccountController extends Controller
         $rules = [
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email' . ($userId ? ',' . $userId : ''),
-            'company_name' => 'required|string|max:255',
+            'company_name' => 'nullable|string|max:255',
             'department' => 'nullable|string|max:100',
             'role' => 'required|exists:roles,name',
             'is_active' => 'required|boolean',

@@ -1,157 +1,148 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Laporan Dokumen</title>
-        <style>
-            @page {
-                margin: 180px 30px 100px 30px; /* Top margin tinggi supaya header tidak nabrak */
-            }
-        
-            body {
-                font-family: Arial, sans-serif;
-                margin: 0;
-                padding: 0;
-            }
-        
-            header {
-                position: fixed;
-                top: -150px;
-                left: 0;
-                right: 0;
-                height: 120px;
-                padding: 10px 20px;
-                border-bottom: 2px solid #000;
-            }
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Laporan Dokumen</title>
 
-            main {
-                margin-top: 20px; /* Tambahkan padding supaya tabel turun */
+    <style>
+        /* Kurangi margin atas halaman supaya header lebih dekat */
+        @page {
+            margin: 95px 30px 80px 30px;
+        }
+    
+        body {
+            font-family: DejaVu Sans, sans-serif;
+            font-size: 15px;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+    
+        /* HEADER HANYA DI HALAMAN PERTAMA */
+        header {
+            position: running(header);
+            height: 70px; /* lebih pendek agar proporsional */
+            border-bottom: 2px solid #000;
+            /*padding: 5px 15px 0 15px;*/
+            text-align: center;
+        }
+    
+        @page:first {
+            @top-center {
+                content: element(header);
             }
-        
-            footer {
-                position: fixed;
-                bottom: -100px;
-                left: 0;
-                right: 0;
-                height: 50px;
-                text-align: center;
-                font-size: 12px;
-                color: #555;
-                border-top: 1px solid #aaa;
-                padding-top: 10px;
-            }
+        }
+    
+        /* KONTEN */
+        main {
+            margin-top: 15px; /* tambahkan sedikit jarak agar tabel tidak nabrak header */
+        }
+    
+        table {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            word-wrap: break-word;
+            page-break-inside: auto;
+        }
+    
+        thead {
+            display: table-row-group !important;
+        }
+    
+        tr {
+            page-break-inside: auto;
+        }
+    
+        th, td {
+            border: 1px solid #000;
+            padding: 6px;
+            vertical-align: top;
+            text-align: justify;
+            word-break: break-word;
+        }
+    
+        th {
+            background-color: #f2f2f2;
+            text-align: center;
+        }
+    
+        td img {
+            display: block;
+            margin: 5px auto;
+            max-width: 180px;
+            height: auto;
+        }
+    
+        h2 {
+            margin: 0;
+            padding: 0;
+        }
+    
+        small {
+            font-size: 15px;
+        }
+    </style>
+</head>
 
-            footer .page-number:after {
-                content: counter(page) ;
-            }
-        
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                page-break-inside: auto;
-            }
-        
-            table th, table td {
-                border: 1px solid #000;
-                padding: 8px;
-                text-align: center;
-            }
-        
-            table th {
-                background-color: #f2f2f2;
-            }
-        
-            tr {
-                page-break-inside: avoid;
-                page-break-after: auto;
-            }
-        </style>        
-    </head>
-    <body>
-        <header>
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div style="text-align: left;">
-                    <img src="{{ public_path('adminpage/assets/img/aasi.png') }}" alt="Logo" style="max-width: 140px;">
-                </div>
-                <div style="flex-grow: 1; text-align: center;">
-                    <h2 style="margin: 0;">Laporan Dokumen {{ ucfirst(str_replace('_', ' ', $jenis)) }}</h2>
-                    <small>No. Dokumen: {{ $document->no_document }}</small><br>
-                    <small>Perihal: {{ $document->perihal }}</small>
-                </div>
-            </div>
-        </header>
-    
-        <footer>
-            <div class="page-number"></div>
-            <div>Asosiasi Asuransi Syariah Indonesia - Jalan Jatinegara Timur II No. 4, Rawa Bunga, Jakarta </div>
-        </footer>
-    
-        <main>
-            <table>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Batang Tubuh</th>
-                        <th>Penjelasan</th>
-                        <th>Tanggapan</th>
-                        <th>PIC</th>
-                        <th>Perusahaan</th>
-                        <th>Reviewer</th>
-                        <th>Alasan</th>
-                    </tr>
-                </thead>
+<body>
+    <!-- HEADER -->
+    <header>
+        <h2 style="margin-bottom: 3px;">Rekap Tanggapan {{ ucwords(str_replace('_', ' ', $jenis)) }}</h2>
+        <small>No. Dokumen: {{ $document->no_document }}</small><br>
+        <small>Perihal: {{ $document->perihal }}</small>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main>
+        <table>
+            @include('partials.table_header', ['document' => $document, 'columns' => 'pdf'])
+            <tbody>
                 @php
                     $grouped = $result->groupBy(function ($item) {
-                        return $item->batangtubuh->batang_tubuh . '|' . $item->batangtubuh->penjelasan . '|' . $item->batangtubuh->gambar;
+                        return $item->content->contents . '|' . $item->content->detil . '|' . $item->content->gambar;
                     });
                 @endphp
-    
+
                 @foreach ($grouped as $key => $group)
                     @foreach ($group as $i => $respond)
                         <tr>
                             @if ($i === 0)
-                                <td rowspan="{{ $group->count() }}">{{ $loop->parent->iteration }}</td>
-                                <td rowspan="{{ $group->count() }}">{{ $respond->batangtubuh->batang_tubuh }}</td>
                                 <td rowspan="{{ $group->count() }}">
-                                    @if ($respond->batangtubuh->gambar)
-                                    <img src="{{ public_path('storage/' . $respond->batangtubuh->gambar) }}" style="max-width: 200px;" alt="Gambar Penjelasan">
-                                    @elseif ($respond->batangtubuh->penjelasan)
-                                        <p>{{ $respond->batangtubuh->penjelasan }}</p>
+                                    {{ $respond->content->contents }}
+                                </td>
+                                <td rowspan="{{ $group->count() }}">
+                                    @if ($respond->content->gambar)
+                                        <img src="{{ public_path('storage/' . $respond->content->gambar) }}" alt="Gambar">
+                                    @elseif ($respond->content->detil)
+                                        {{ $respond->content->detil }}
                                     @else
-                                        <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                        <em>-</em>
                                     @endif
                                 </td>
                             @endif
+
                             <td>
                                 @if ($respond->is_deleted)
-                                    <del class="muted">{{ json_decode($respond->original_data)->tanggapan ?? '-' }}</del>
-                                    <br>(Dihapus oleh reviewer)
+                                    <del>{{ json_decode($respond->original_data)->tanggapan ?? '-' }}</del>
+                                    <br><small>(Dihapus oleh reviewer)</small>
                                 @else
                                     {{ $respond->tanggapan ?? '-' }}
                                     @if ($jenis === 'full' && $respond->original_data)
-                                        <br>
-                                        <small class="muted">
-                                            <i>(Sebelum revisi: {{ json_decode($respond->original_data)->tanggapan ?? '-' }})</i>
-                                        </small>
+                                        <br><small><i>(Sebelum revisi: {{ json_decode($respond->original_data)->tanggapan ?? '-' }})</i></small>
                                     @endif
                                 @endif
                             </td>
                             <td>{{ $respond->pic->name ?? '-' }}</td>
                             <td>{{ $respond->perusahaan ?? '-' }}</td>
                             <td>{{ $respond->reviewer->name ?? '-' }}</td>
-                            <td>
-                                @if ($respond->alasan)
-                                    <span class="text-danger">{{ $respond->alasan }}</span>
-                                @else
-                                    -
-                                @endif
-                            </td>
+                            <td>{{ $respond->alasan ?? '-' }}</td>
                         </tr>
                     @endforeach
                 @endforeach
-            </table>
-        </main>
-    </body>
-    
+            </tbody>
+        </table>
+    </main>
+</body>
 </html>

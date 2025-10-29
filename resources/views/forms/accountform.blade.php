@@ -15,15 +15,15 @@
 </div>
 @endif
 
-<div class="col-md-6">
+<div class="col-md-6" id="company-field">
     <label for="company_name" class="form-label">Perusahaan</label>
     <select name="company_name" class="form-select">
-        <option value="">-- Pilih Perusahaan --</option>
-        @foreach ($companies as $company)
-            <option value="{{ $company->namapt }}" {{ old('company_name', $user->company_name ?? '') == $company->namapt ? 'selected' : '' }}>
-                {{ $company->namapt }}
-            </option>
-        @endforeach
+    <option value="AASI">AASI</option>
+    @foreach ($companies as $company)
+    <option value="{{ $company->namapt }}" {{ old('company_name', $user->company_name ?? '') == $company->namapt ? 'selected' : '' }}>
+        {{ $company->namapt }}
+    </option>
+    @endforeach
     </select>
 </div>
 
@@ -35,13 +35,13 @@
 <div class="col-md-6">
     <label for="role" class="form-label">Role</label>
     <select name="role" id="role" class="form-select">
-        <option value="">-- Pilih Role --</option>
-        @foreach ($roles as $role)
-            <option value="{{ $role->name }}"
-                {{ (isset($user) && $user->roles->pluck('name')->contains($role->name)) ? 'selected' : '' }}>
-                {{ $role->name }}
-            </option>
-        @endforeach
+    <option value="">-- Pilih Role --</option>
+    @foreach ($roles as $role)
+    <option value="{{ $role->name }}"
+        {{ (isset($user) && $user->roles->pluck('name')->contains($role->name)) ? 'selected' : '' }}>
+        {{ $role->name }}
+    </option>
+    @endforeach
     </select>
 </div>
 
@@ -57,3 +57,23 @@
     <button type="submit" class="btn btn-success me-2">{{ $submit ?? 'Simpan' }}</button>
     <a href="{{ route('admin.users.index') }}" class="btn btn-danger me-2">Kembali</a>
 </div>
+
+@section('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const roleSelect = document.getElementById('role');
+    const companyField = document.getElementById('company-field');
+    function toggleCompanyField() {
+        const selectedRole = roleSelect.value;
+        if (selectedRole === 'Reviewer' || selectedRole === 'Main Admin') {
+            companyField.style.display = 'none';
+            companyField.querySelector('select').value = 'AASI';
+        } else {
+        companyField.style.display = 'block';
+        }
+    }
+    roleSelect.addEventListener('change', toggleCompanyField);
+    toggleCompanyField();
+});
+</script>
+@endsection

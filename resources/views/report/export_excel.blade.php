@@ -1,72 +1,64 @@
 <table>
-    {{-- Baris 1–3: Judul Laporan --}}
+    {{-- HEADER --}}
+    @php
+        $jenisSentence = ucfirst(strtolower(str_replace('_', ' ', $jenis)));
+    @endphp
+
     <tr>
-        <td colspan="{{ $jenis == 'full' ? 10 : 9 }}" style="font-weight: bold; font-size: 16px; text-align: center;">
-            LAPORAN TANGGAPAN DOKUMEN
+        <td colspan="{{ $jenis == 'full' ? 9 : 8 }}" style="font-weight: bold; font-size: 16px; text-align: center;">
+            LAPORAN DOKUMEN {{ strtoupper($jenisSentence) }}
         </td>
     </tr>
     <tr>
-        <td colspan="{{ $jenis == 'full' ? 10 : 9 }}" style="text-align: center;">
-            Dokumen: {{ $document->no_document }} - {{ $document->perihal }}
+        <td colspan="{{ $jenis == 'full' ? 9 : 8 }}" style="text-align: center;">
+            No. Dokumen: {{ $document->no_document }}
         </td>
     </tr>
     <tr>
-        <td colspan="{{ $jenis == 'full' ? 10 : 9 }}" style="text-align: center;">
-            Jenis Laporan: {{ strtoupper($jenis === 'final' ? 'Final' : 'Full dengan Perubahan') }}
+        <td colspan="{{ $jenis == 'full' ? 9 : 8 }}" style="text-align: center;">
+            Perihal: {{ $document->perihal }}
         </td>
     </tr>
 
     {{-- Baris kosong --}}
-    <tr><td colspan="{{ $jenis == 'full' ? 10 : 9 }}">&nbsp;</td></tr>
+    <tr><td colspan="{{ $jenis == 'full' ? 9 : 8 }}">&nbsp;</td></tr>
 
-    {{-- Header Kolom --}}
-    <thead>
-        <tr>
-            <th>No</th>
-            <th>Dokumen</th>
-            <th>Pasal</th>
-            <th>Penjelasan / Gambar</th>
-            <th>Tanggapan</th>
-            <th>PIC</th>
-            <th>Perusahaan</th>
-            <th>Reviewer</th>
-            <th>Alasan</th>
-            @if($jenis == 'full')
-                <th>Data Sebelumnya</th>
-            @endif
-        </tr>
-    </thead>
+    {{-- HEADER KOLOM --}}
+    @include('partials.table_header', ['document' => $document, 'columns' => 'excel'])
 
     <tbody>
         @php
-            $grouped = $result->groupBy(fn($item) => $item->batangtubuh->id ?? 0);
+            $grouped = $result->groupBy(fn($item) => $item->content->id ?? 0);
             $rowNumber = 1;
         @endphp
 
-        @foreach ($grouped as $batangtubuhId => $items)
+        @foreach ($grouped as $contentId => $items)
             @foreach ($items as $index => $r)
                 <tr>
                     @if ($index == 0)
                         <td rowspan="{{ $items->count() }}">{{ $rowNumber }}</td>
-                        <td rowspan="{{ $items->count() }}">{{ $r->document->no_document ?? '-' }}</td>
-                        <td rowspan="{{ $items->count() }}">{{ $r->batangtubuh->batang_tubuh ?? '-' }}</td>
+                        <td rowspan="{{ $items->count() }}">{{ $r->content->contents ?? '-' }}</td>
                         <td rowspan="{{ $items->count() }}">
-                            @if ($r->batangtubuh->gambar)
-                                {{-- Gambar akan ditambahkan via WithDrawings, jangan tampilkan di sini --}}
-                            @elseif ($r->batangtubuh->penjelasan)
-                                {{ $r->batangtubuh->penjelasan }}
+                            @if ($r->content->gambar)
+                                {{-- Gambar ditambahkan via WithDrawings --}}
+                            @elseif ($r->content->detil)
+                                {{ $r->content->detil }}
                             @else
-                                <em>Tidak ada penjelasan atau gambar.</em>
+                                <em>-</em>
                             @endif
                         </td>
                         @php $rowNumber++; @endphp
                     @endif
 
                     <td>
-                        @if ($r->tanggapan)
-                            {{ $r->is_deleted ? 'Dihapus' : $r->tanggapan }}
+                        @if ($r->is_deleted)
+                            <del>{{ json_decode($r->original_data)->tanggapan ?? '-' }}</del>
+                            (Dihapus oleh reviewer)
                         @else
-                            Tidak ada tanggapan
+                            {{ $r->tanggapan ?? '-' }}
+                            @if ($jenis === 'full' && $r->original_data)
+                                <br><small><i>(Sebelum revisi: {{ json_decode($r->original_data)->tanggapan ?? '-' }})</i></small>
+                            @endif
                         @endif
                     </td>
                     <td>{{ $r->pic->name ?? '-' }}</td>

@@ -6,7 +6,7 @@ use App\Exports\LaporanExport;
 use App\Models\Batangtubuh;
 use App\Models\Document;
 use App\Models\Respond;
-use Barryvdh\DomPDF\Facade\Pdf;
+use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
@@ -54,21 +54,21 @@ class ReportController extends Controller
         $jenis = $request->type;
     
         // Ambil semua tanggapan
-        $responds = Respond::with(['batangtubuh', 'pic', 'reviewer', 'document'])
+        $responds = Respond::with(['content', 'pic', 'reviewer', 'document'])
             ->where('doc_id', $document->id)
             ->when($jenis === 'final', fn($q) => $q->where('is_deleted', false))
             ->get();
     
-        // Ambil semua batangtubuh
-        $allBatangtubuh = $document->batangtubuh()->get();
+        // Ambil semua content
+        $allContent = $document->contents()->get();
     
-        // Gabungkan: pastikan setiap batangtubuh tetap muncul meskipun tidak ada tanggapan
+        // Gabungkan: pastikan setiap content tetap muncul meskipun tidak ada tanggapan
         $merged = collect();
-        foreach ($allBatangtubuh as $batangtubuh) {
-            $related = $responds->where('batangtubuh_id', $batangtubuh->id);
+        foreach ($allContent as $content) {
+            $related = $responds->where('content_id', $content->id);
             if ($related->isEmpty()) {
                 $merged->push((object)[
-                    'batangtubuh' => $batangtubuh,
+                    'content' => $content,
                     'document' => $document,
                     'tanggapan' => null,
                     'pic' => null,
@@ -90,16 +90,20 @@ class ReportController extends Controller
         }
     
         if ($request->format === 'pdf') {
-            $pdf = PDF::loadView('report.export_pdf', [
-                'result' => $merged,
-                'document' => $document,
-                'jenis' => $jenis
-            ])->setPaper('A4', 'landscape');
-    
-            return $pdf->stream('laporan_' . $document->slug . '.pdf');
+            $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('report.export_pdf', [
+            'result' => $merged,
+            'document' => $document,
+            'jenis' => $jenis
+        ])
+        ->setPaper('A4', 'landscape')
+        ->setOption('encoding', 'UTF-8')
+        ->setOption('margin-top', 30) // cukup kecil karena header sudah fixed di CSS
+        ->setOption('margin-bottom', 25)
+        ->setOption('footer-center', '')
+        ->setOption('disable-smart-shrinking', false)
+        ->setOption('print-media-type', true);
+        
+        return $pdf->stream('laporan_' . $document->slug . '.pdf');
         }
-    
-        return back()->with('error', 'Format tidak dikenali.');
     }
-    
 }
