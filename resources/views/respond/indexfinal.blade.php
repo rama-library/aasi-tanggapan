@@ -2,9 +2,8 @@
 
 @section('content')
 <div class="container-fluid">
-    <h4 class="mb-3">Tanggapan Final</h4>
+    <h4 class="mb-3">Tanggapan Selesai</h4>
 
-    {{-- Search --}}
     <form method="GET" class="mb-3">
         <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="Cari Dokumen..." value="{{ request('search') }}">
@@ -12,7 +11,6 @@
         </div>
     </form>
 
-    {{-- Table --}}
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
@@ -32,7 +30,7 @@
                             <tr>
                                 <td>{{ ($documents->currentPage() - 1) * $documents->perPage() + $index + 1 }}</td>
                                 <td>
-                                    <a href="{{ route('tanggapan.final.detail', ['document' => $doc->slug]) }}">
+                                    <a href="{{ route('tanggapan.selesai.detail', ['document' => $doc->slug]) }}">
                                         {{ $doc->no_document }}
                                     </a>
                                 </td>

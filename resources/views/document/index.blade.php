@@ -14,26 +14,28 @@
                 <table class="table table-bordered text-start" id="alltable">
                     <thead>
                         <tr>
-                            <th>No</th>
-                            <th>No Dokumen</th>
-                            <th>Perihal </th>
-                            <th>Tanggal Upload</th>
-                            <th>Respond Due Date</th>                                             
-                            <th>Review Due Date</th>                                                 
-                            <th>Uploader</th>                            
-                            <th>Aksi</th>
+                            <th class="text-center">No</th>
+                            <th class="text-center">Jenis Dokumen</th>
+                            <th class="text-center">No Dokumen</th>
+                            <th class="text-center">Perihal </th>
+                            <th class="text-center">Tanggal Upload</th>
+                            <th class="text-center">Respond Due Date</th>                                             
+                            <th class="text-center">Review Due Date</th>                                                 
+                            <th class="text-center">Uploader</th>                            
+                            <th class="text-center">Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($documents as $i => $document)
                         <tr>
-                            <td>{{ $i + 1 }}</td>
-                            <td>{{ $document->no_document }}</td>
-                            <td>{{ $document->perihal }}</td>
-                            <td>{{ Carbon\Carbon::parse($document->created_at)->isoFormat('dddd, D MMMM Y') }}</td>
-                            <td>{{ Carbon\Carbon::parse($document->due_date)->isoFormat('dddd, D MMMM Y') }} {{ $document->due_time }}</td>
-                            <td>{{ Carbon\Carbon::parse($document->review_due_date)->isoFormat('dddd, D MMMM Y') }} {{ $document->review_due_time }}</td>                                
-                            <td>{{ $document->author->name }}</td>
+                            <td class="text-center">{{ $i + 1 }}</td>
+                            <td class="text-center">{{ $document->documentType->name ?? '-' }}</td>
+                            <td class="text-center">{{ $document->no_document }}</td>
+                            <td class="text-justify">{{ $document->perihal }}</td>
+                            <td class="text-justify">{{ Carbon\Carbon::parse($document->created_at)->isoFormat('dddd, D MMMM Y') }}</td>
+                            <td class="text-justify">{{ Carbon\Carbon::parse($document->due_date)->isoFormat('dddd, D MMMM Y') }} {{ $document->due_time }}</td>
+                            <td class="text-justify">{{ Carbon\Carbon::parse($document->review_due_date)->isoFormat('dddd, D MMMM Y') }} {{ $document->review_due_time }}</td>                                
+                            <td class="text-justify">{{ $document->author->name }}</td>
                             <td>
                                 <a href="{{ route('admin.documents.show', $document->slug) }}" class="badge bg-info d-inline-flex align-items-center">
                                     <span data-feather="eye"></span>

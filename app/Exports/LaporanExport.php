@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Events\AfterSheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Drawing;
 use PhpOffice\PhpSpreadsheet\Style\Border;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
 class LaporanExport implements FromView, WithStyles, WithEvents, WithDrawings
 {
@@ -36,9 +37,8 @@ class LaporanExport implements FromView, WithStyles, WithEvents, WithDrawings
 
     public function styles(Worksheet $sheet)
     {
-        $lastCol = $this->jenis === 'full' ? 'J' : 'I';
-        $sheet->getStyle("A1:{$lastCol}1")->getFont()->setBold(true);
-
+        $lastCol = $this->jenis === 'full' ? 'I' : 'H';
+        $sheet->getStyle("A5:{$lastCol}5")->getFont()->setBold(true);
         return [];
     }
 
@@ -47,40 +47,79 @@ class LaporanExport implements FromView, WithStyles, WithEvents, WithDrawings
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-
-                $lastCol = $this->jenis === 'full' ? 'J' : 'I';
+                $lastCol = $this->jenis === 'full' ? 'I' : 'H';
                 $highestRow = $sheet->getHighestRow();
-
-                // Auto-size kolom
-                foreach (range('A', $lastCol) as $col) {
-                    $sheet->getColumnDimension($col)->setAutoSize(true);
+    
+                /** 1️⃣ Tetapkan lebar kolom manual **/
+                $columnWidths = [
+                    'A' => 6,
+                    'B' => 20,
+                    'C' => 20,
+                    'D' => 35,
+                    'E' => 35,
+                    'F' => 20,
+                    'G' => 20,
+                    'H' => 20,
+                    'I' => 25,
+                ];
+                foreach ($columnWidths as $col => $width) {
+                    if ($col <= $lastCol) {
+                        $sheet->getColumnDimension($col)->setWidth($width);
+                        $sheet->getColumnDimension($col)->setAutoSize(false);
+                    }
                 }
-
-                // Center align
-                $sheet->getStyle("A1:{$lastCol}{$highestRow}")
-                    ->getAlignment()
-                    ->setHorizontal('center')
-                    ->setVertical('center')
+    
+                /** 2️⃣ Wrap text + alignment **/
+                $styleRange = "A1:{$lastCol}{$highestRow}";
+                $sheet->getStyle($styleRange)->getAlignment()
+                    ->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT)
+                    ->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_TOP)
                     ->setWrapText(true);
-
-                // Border semua cell
-                $sheet->getStyle("A1:{$lastCol}{$highestRow}")
+    
+                /** 3️⃣ Border seluruh area data **/
+                $sheet->getStyle("A5:{$lastCol}{$highestRow}")
                     ->getBorders()
                     ->getAllBorders()
-                    ->setBorderStyle(Border::BORDER_THIN);
-
-                // Merge & bold header
+                    ->setBorderStyle(\PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN);
+    
+                /** 4️⃣ Header merge & center **/
                 $sheet->mergeCells("A1:{$lastCol}1");
                 $sheet->mergeCells("A2:{$lastCol}2");
                 $sheet->mergeCells("A3:{$lastCol}3");
-
                 $sheet->getStyle('A1:A3')->getFont()->setBold(true);
-                $sheet->getStyle('A1:A3')->getAlignment()->setHorizontal('center');
-
-                // Set tinggi baris default (untuk gambar agar muat)
-                for ($row = 5; $row <= $highestRow; $row++) {
-                    $sheet->getRowDimension($row)->setRowHeight(110);
+                $sheet->getStyle('A1:A3')->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+    
+                /** 5️⃣ Hitung tinggi otomatis berdasar teks (tanpa matikan wrap) **/
+                for ($row = 6; $row <= $highestRow; $row++) {
+                    $maxHeight = 18;
+                    foreach (range('A', $lastCol) as $col) {
+                        $cell = "{$col}{$row}";
+                        $value = (string) $sheet->getCell($cell)->getValue();
+                        if ($value !== '') {
+                            // Perkirakan jumlah baris berdasarkan panjang teks dan lebar kolom
+                            $colWidth = $sheet->getColumnDimension($col)->getWidth();
+                            $charsPerLine = max(1, round($colWidth * 1.2)); // rasio empiris
+                            $lines = ceil(mb_strlen($value) / $charsPerLine);
+                            $height = 15 * max(1, $lines);
+                            $maxHeight = max($maxHeight, $height);
+                        }
+                    }
+                    $sheet->getRowDimension($row)->setRowHeight($maxHeight);
                 }
+    
+                /** 6️⃣ Baris dengan gambar dibuat lebih tinggi **/
+                for ($row = 6; $row <= $highestRow; $row++) {
+                    $val = $sheet->getCell("C{$row}")->getValue();
+                    if (empty($val)) {
+                        $sheet->getRowDimension($row)->setRowHeight(
+                            max($sheet->getRowDimension($row)->getRowHeight(), 100)
+                        );
+                    }
+                }
+    
+                /** 7️⃣ Pastikan gridline & cell pertama aktif **/
+                $sheet->setShowGridlines(true);
+                $sheet->setSelectedCell('A1');
             },
         ];
     }
@@ -88,9 +127,23 @@ class LaporanExport implements FromView, WithStyles, WithEvents, WithDrawings
     public function drawings()
     {
         $drawings = [];
-        $rowOffset = 6; // karena header 4 baris
 
-        // Untuk lacak baris per batangtubuh
+        /** Logo di kiri atas **/
+        $logoPath = public_path('adminpage/assets/img/aasi.png');
+        if (file_exists($logoPath)) {
+            $logo = new Drawing();
+            $logo->setName('Logo');
+            $logo->setDescription('Logo AASI');
+            $logo->setPath($logoPath);
+            $logo->setHeight(70);
+            $logo->setCoordinates('A1');
+            $logo->setOffsetX(10);
+            $logo->setOffsetY(5);
+            $drawings[] = $logo;
+        }
+
+        /** Gambar batang tubuh **/
+        $rowOffset = 6;
         $grouped = $this->result->groupBy(fn($item) => $item->batangtubuh->id ?? 0);
         $rowCounter = $rowOffset;
 
@@ -100,19 +153,16 @@ class LaporanExport implements FromView, WithStyles, WithEvents, WithDrawings
                 $gambarPath = public_path('storage/' . $item->batangtubuh->gambar);
                 if (file_exists($gambarPath)) {
                     $drawing = new Drawing();
-                    $drawing->setName('Penjelasan');
-                    $drawing->setDescription('Gambar Penjelasan');
+                    $drawing->setName('Gambar');
+                    $drawing->setDescription('Penjelasan');
                     $drawing->setPath($gambarPath);
-                    $drawing->setHeight(100); // Sesuaikan tinggi
-                    $drawing->setCoordinates('D' . $rowCounter); // kolom D = penjelasan
-                    // Offset agar lebih ke tengah
-                    $drawing->setOffsetX(40); // horizontal (default 0)
-                    $drawing->setOffsetY(15); // vertical (default 0)
+                    $drawing->setHeight(90);
+                    $drawing->setCoordinates('C' . $rowCounter);
+                    $drawing->setOffsetX(20);
+                    $drawing->setOffsetY(10);
                     $drawings[] = $drawing;
                 }
             }
-
-            // Tambah baris sebanyak jumlah item di group
             $rowCounter += $group->count();
         }
 

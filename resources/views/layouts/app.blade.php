@@ -19,7 +19,7 @@
                         </a>
                     @else
                         <a class="navbar-brand d-flex align-items-center" href="#">
-                            <img src="{{ asset('img/logo.png') }}" alt="Logo" height="32" class="me-2">
+                            <img src="{{ asset('frontend/img/logoaw2.png') }}" alt="Logo" height="32" class="me-2">
                             <span class="fw-bold fs-5">E-Tanggapan</span>
                         </a>
                         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMenu">
@@ -35,9 +35,9 @@
                         <div class="collapse navbar-collapse justify-content-between" id="navbarMenu">
                             <ul class="navbar-nav mx-auto">
                                 <li class="nav-item"><a class="nav-link" href="{{ route('home') }}">Beranda</a></li>
-                                <li class="nav-item"><a class="nav-link" href="{{ route('tanggapan.berlangsung') }}">Tanggapan Berlangsung</a></li>
-                                <li class="nav-item"><a class="nav-link" href="{{ route('tanggapan.final') }}">Tanggapan Final</a></li>
-                                <li class="nav-item"><a class="nav-link" href="{{ route('laporan.index') }}">Laporan</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('berikan.tanggapan') }}">Berikan Tanggapan</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('tanggapan.selesai') }}">Tanggapan Selesai</a></li>
+                                <li class="nav-item"><a class="nav-link" href="{{ route('laporan.index') }}">Rekap Tanggapan</a></li>
                             </ul>
                             <ul class="navbar-nav">
                                 @include('layouts.profile_dropdown')

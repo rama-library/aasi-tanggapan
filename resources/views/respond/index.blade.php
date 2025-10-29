@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid">
-    <h4 class="mb-3">Tanggapan Berlangsung</h4>
+    <h4 class="mb-3">Berikan Tanggapan</h4>
 
     <div class="card">
         <div class="card-body">
@@ -10,22 +10,22 @@
                 <table class="table table-bordered" id="alltable">
                     <thead>
                         <tr>
-                            <th>No</th>
-                            <th>No Dokumen</th>
-                            <th>Perihal</th>
-                            <th>Tanggal Upload</th>
-                            <th>Due Date</th>
-                            <th>Due Time</th>
+                            <th class="text-center">No</th>
+                            <th class="text-center">No Dokumen</th>
+                            <th class="text-center">Perihal</th>
+                            <th class="text-center">Tanggal Upload</th>
+                            <th class="text-center">Due Date</th>
+                            <th class="text-center">Due Time</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($documents as $index => $doc)
                         <tr>
                             <td>{{ $index + 1 }}</td>
-                            <td><a href="{{ route('tanggapan.berlangsung.detail', $doc->slug) }}">{{ $doc->no_document }}</a></td>
+                            <td><a href="{{ route('berikan.tanggapan.detail', $doc->slug) }}">{{ $doc->no_document }}</a></td>
                             <td>{{ $doc->perihal }}</td>
                             <td>{{ $doc->created_at->format('d M Y') }}</td>
-                            <td>{{ $doc->due_date_formatted }}</td>
+                            <td>{{ $doc->formatted_due_date }}</td>
                             <td>{{ $doc->due_time ?? '-' }}</td>
                         </tr>
                         @endforeach

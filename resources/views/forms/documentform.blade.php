@@ -1,4 +1,15 @@
 <div class="col-md-6">
+    <label for="document_type_id" class="form-label">Jenis Dokumen</label>
+    <select name="document_type_id" id="document_type_id" class="form-select" required>
+        <option value="">-- Pilih Jenis Dokumen --</option>
+        @foreach($documentTypes as $type)
+            <option value="{{ $type->id }}" {{ old('document_type_id', $document->document_type_id ?? '') == $type->id ? 'selected' : '' }}>
+                {{ $type->name }}
+            </option>
+        @endforeach
+    </select>
+</div>
+<div class="col-md-6">
     <label for="no_document" class="form-label">No Dokumen</label>
     <input type="text" name="no_document" id="no_document" value="{{ old('no_document', $document->no_document ?? '') }}" class="form-control" autofocus>
 </div>

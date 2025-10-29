@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Batangtubuh;
+use App\Models\Content;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class AdminBatangTubuhController extends Controller
+class AdminContentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index($doc_id)
     {
-        $document = Document::with('batangtubuh')->findOrFail($doc_id);
+        $document = Document::with('contents')->findOrFail($doc_id);
         return view('document.show', compact('document'));
     }
 
@@ -24,7 +24,7 @@ class AdminBatangTubuhController extends Controller
     public function create($slug)
     {
         $document = Document::where('slug', $slug)->firstOrFail();
-        return view('batangtubuh.create', compact('document'));
+        return view('content.create', compact('document'));
     }
 
     /**
@@ -33,7 +33,7 @@ class AdminBatangTubuhController extends Controller
     public function store(Request $request, $slug)
     {
         $document = Document::where('slug', $slug)->firstOrFail();
-        $this->validateBatangTubuh($request);
+        $this->validateContent($request);
 
         $gambarPath = null;
         if ($request->hasFile('gambar')) {
@@ -41,73 +41,74 @@ class AdminBatangTubuhController extends Controller
         }
 
 
-        Batangtubuh::create([
+        Content::create([
             'doc_id' => $document->id,
-            'batang_tubuh' => $request->batang_tubuh,
-            'penjelasan' => $request->penjelasan,
+            'contents' => $request->contents,
+            'detil' => $request->detil,
             'gambar' => $gambarPath,
         ]);
 
-        return $this->alertRedirect('admin.documents.show', $document->slug, 'Batang tubuh berhasil ditambahkan.', 'Tersimpan');
+        return $this->alertRedirect('admin.documents.show', $document->slug, 'Konten berhasil ditambahkan.', 'Tersimpan');
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Document $document, Batangtubuh $batangtubuh)
+    public function show(Document $document, Content $content)
     {
-        $batangtubuh->load(['respond.pic', 'respond.reviewer']);
-        return view('batangtubuh.show', compact('document', 'batangtubuh'));
+        $content->load(['respond.pic', 'respond.reviewer', 'respond.histories.reviewer']);
+        return view('content.show', compact('document', 'content'));
     }
+
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Document $document, Batangtubuh $batangtubuh)
+    public function edit(Document $document, Content $content)
     {
-        return view('batangtubuh.edit', compact('document', 'batangtubuh'));
+        return view('content.edit', compact('document', 'content'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Document $document, Batangtubuh $batangtubuh)
+    public function update(Request $request, Document $document, Content $content)
     {
-        $this->validateBatangTubuh($request);
+        $this->validateContent($request);
 
-        $gambarPath = $batangtubuh->gambar;
+        $gambarPath = $content->gambar;
         if ($request->hasFile('gambar')) {
             $gambarPath = $request->file('gambar')->store('gambar_penjelasan', 'public');
         }
 
-        $batangtubuh->update([
-            'batang_tubuh' => $request->batang_tubuh,
-            'penjelasan' => $request->penjelasan,
+        $content->update([
+            'contents' => $request->contents,
+            'detil' => $request->detil,
             'gambar' => $gambarPath,
         ]);
 
-        return $this->alertRedirect('admin.documents.show', $document->slug, 'Batang Tubuh berhasil diperbarui.', 'Terupdate');
+        return $this->alertRedirect('admin.documents.show', $document->slug, 'Konten berhasil diperbarui.', 'Terupdate');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Batangtubuh $batangtubuh)
+    public function destroy(Content $content)
     {   
-        if($batangtubuh->gambar){
-            Storage::delete($batangtubuh->gambar);
+        if($content->gambar){
+            Storage::delete($content->gambar);
         }
-        $documentSlug = Document::findOrFail($batangtubuh->doc_id)->slug;
-        $batangtubuh->delete();
+        $documentSlug = Document::findOrFail($content->doc_id)->slug;
+        $content->delete();
 
-        return $this->alertRedirect('admin.documents.show', $documentSlug, 'Batang Tubuh berhasil dihapus.', 'Terhapus');
+        return $this->alertRedirect('admin.documents.show', $documentSlug, 'Konten berhasil dihapus.', 'Terhapus');
     }
-
-    protected function validateBatangTubuh(Request $request): void
+    
+    protected function validateContent(Request $request): void
     {
         $request->validate([
-            'batang_tubuh' => 'required',
-            'penjelasan' => 'nullable',
+            'contents' => 'required',
+            'detil' => 'nullable',
             'gambar' => 'nullable|image|max:2048',
         ]);
     }

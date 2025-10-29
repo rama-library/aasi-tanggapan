@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
-use App\Models\User;
+use App\Models\DocumentType;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Cviebrock\EloquentSluggable\Services\SlugService;
@@ -13,13 +13,14 @@ class AdminDocumentController extends Controller
     public function index()
     {
         return view('document.index', [
-            'documents' => Document::with('author')->get(),
+            'documents' => Document::with('author')->orderBy('created_at', 'DESC')->get(),
         ]);
     }
 
     public function create()
     {
-        return view('document.create');
+        $documentTypes = DocumentType::orderBy('name')->get();
+        return view('document.create', compact('documentTypes'));
     }
 
     public function store(Request $request)
@@ -35,15 +36,18 @@ class AdminDocumentController extends Controller
 
     public function show(Document $document)
     {
-        $document->load('batangtubuh');
-
+        $document->load(['contents' => function ($query) {
+            $query->orderBy('created_at', 'asc');
+        }]);
+    
         return view('document.show', compact('document'));
     }
 
     public function edit(Document $document)
     {
         $document->load('author');
-        return view('document.edit', compact('document'));
+        $documentTypes = DocumentType::orderBy('name')->get();
+        return view('document.edit', compact('document', 'documentTypes'));
     }
 
     public function update(Request $request, Document $document)
@@ -82,12 +86,13 @@ class AdminDocumentController extends Controller
         }
 
         return [
+            'document_type_id' => 'nullable|exists:document_types,id',
             'no_document' => 'required',
             'slug' => $uniqueSlug,
             'perihal' => 'required',
-            'due_date' => 'required|date',
+            'due_date' => 'required|date|before_or_equal:review_due_date',
             'due_time' => 'required',
-            'review_due_date' => 'required|date',
+            'review_due_date' => 'required|date|after_or_equal:due_date',
             'review_due_time' => 'required',
         ];
     }

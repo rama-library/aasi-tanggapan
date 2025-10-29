@@ -14,49 +14,42 @@
         </div>
     </div>
 
-    {{-- Daftar Batang Tubuh --}}
+    {{-- Daftar Konten --}}
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">Daftar Batang Tubuh</h5>
-        <a href="{{ route('admin.batangtubuh.create', ['document' => $document->slug]) }}" class="btn btn-primary">+ Tambah Batang Tubuh</a>
+        <h5 class="mb-0">Daftar Konten</h5>
+        <a href="{{ route('admin.content.create', ['document' => $document->slug]) }}" class="btn btn-primary">+ Tambah</a>
     </div>
 
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
                 <table class="table table-bordered" id="alltable">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Batang Tubuh</th>
-                            <th>Penjelasan</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
+                    @include('partials.table_header', ['document' => $document])
                     <tbody>
-                        @foreach ($document->batangtubuh as $index => $batangtubuh)
+                        @foreach ($document->contents as $index => $content)
                         <tr>
-                            <td>{{ $index + 1 }}</td>
-                            <td class="text-justify">{{ $batangtubuh->batang_tubuh }}</td>
+                            <td class="text-center">{{ $index + 1 }}</td>
+                            <td class="text-justify">{{ $content->contents }}</td>
                             <td class="text-justify">
-                                @if ($batangtubuh->penjelasan && $batangtubuh->gambar)
-                                <br><img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" width="200" alt="Gambar Penjelasan">
-                                <p>{{ $batangtubuh->penjelasan }}</p>
-                                @elseif ($batangtubuh->gambar)
-                                <br><img src="{{ asset('storage/' . $batangtubuh->gambar) }}" class="img-fluid" width="200" alt="Gambar Penjelasan">
-                                @elseif ($batangtubuh->penjelasan)
-                                <p>{{ $batangtubuh->penjelasan }}</p>
+                                @if ($content->detil && $content->gambar)
+                                <br><img src="{{ asset('storage/' . $content->gambar) }}" class="img-fluid" width="200" alt="Gambar detil">
+                                <p>{{ $content->detil }}</p>
+                                @elseif ($content->gambar)
+                                <br><img src="{{ asset('storage/' . $content->gambar) }}" class="img-fluid" width="200" alt="Gambar detil">
+                                @elseif ($content->detil)
+                                <p>{{ $content->detil }}</p>
                                 @else
-                                    <p><em>Tidak ada penjelasan atau gambar.</em></p>
+                                    <p><em> </em></p>
                                 @endif                             
                             </td>
                             <td>
-                                <a href="{{ route('admin.batangtubuh.show', ['document' => $document->slug, 'batangtubuh' => $batangtubuh->id]) }}" class="badge bg-info d-inline-flex align-items-center">
+                                <a href="{{ route('admin.content.show', ['document' => $document->slug, 'content' => $content->id]) }}" class="badge bg-info d-inline-flex align-items-center">
                                     <span data-feather="eye"></span>
                                 </a>                            
-                                <form id="delete-form-{{ $batangtubuh->id }}" action="{{ route('admin.batangtubuh.destroy', $batangtubuh->id) }}" method="POST">
+                                <form id="delete-form-{{ $content->id }}" action="{{ route('admin.content.destroy', $content->id) }}" method="POST">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="button" onclick="confirmDelete('delete-form-{{ $batangtubuh->id }}')" class="badge bg-danger border-0 d-inline-flex align-items-center">
+                                    <button type="button" onclick="confirmDelete('delete-form-{{ $content->id }}')" class="badge bg-danger border-0 d-inline-flex align-items-center">
                                         <span data-feather="x-circle"></span>
                                     </button>
                                 </form>

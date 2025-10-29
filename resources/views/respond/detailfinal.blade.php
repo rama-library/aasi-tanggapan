@@ -2,28 +2,28 @@
 
 @section('content')
 <div class="container-fluid">
-    <h4 class="mb-3">Detail Dokumen Final: <strong>{{ $document->no_document }}</strong></h4>
+    <h4 class="mb-3">Detail Dokumen Selesai: <strong>{{ $document->no_document }}</strong></h4>
 
     {{-- Info Dokumen --}}
     <div class="card mb-4">
         <div class="card-body">
             <p><strong>Perihal:</strong> {{ $document->perihal }}</p>
-            <p><strong>Tanggal Upload:</strong> {{ \Carbon\Carbon::parse($document->created_at)->isoFormat('D MMMM Y') }}</p>
-            <p><strong>Due Date:</strong> {{ \Carbon\Carbon::parse($document->due_date)->isoFormat('D MMMM Y') }} {{ $document->due_time }}</p>
+            <p><strong>Tanggal Upload:</strong> {{ $document->formatted_created_at }}</p>
+            <p><strong>Due Date:</strong> {{ $document->formatted_due_date }} {{ $document->due_time }}</p>
             <p><strong>Batas Review Reviewer:</strong> 
-                @if ($document->review_due_date && $document->review_due_time)
-                    {{ \Carbon\Carbon::parse($document->review_due_date)->isoFormat('D MMMM Y') }} {{ $document->review_due_time }}
+                @if ($document->formatted_review_due_date)
+                    {{ $document->formatted_review_due_date }} {{ $document->review_due_time }}
                 @else
                     <em>Belum ditentukan</em>
                 @endif
-            </p>            
+            </p>
         </div>
     </div>
 
     {{-- Search --}}
     <form method="GET" class="mb-3">
         <div class="input-group">
-            <input type="text" name="search" class="form-control" placeholder="Cari Batang Tubuh..." value="{{ request('search') }}">
+            <input type="text" name="search" class="form-control" placeholder="Cari..." value="{{ request('search') }}">
             <button class="btn btn-primary" type="submit">Cari</button>
         </div>
     </form>
@@ -32,137 +32,106 @@
     <div class="card">
         <div class="card-body">
             <div class="table-responsive">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Batang Tubuh</th>
-                            <th>Penjelasan</th>
-                            <th>Tanggapan</th>
-                            <th>PIC</th>
-                            <th>Perusahaan</th>
-                            <th>Reviewer</th>
-                            <th>Alasan</th>
-                            @if (auth()->user()->hasRole('Reviewer'))
-                                <th>Aksi</th>
-                            @endif
-                        </tr>
-                    </thead>
+                <table class="table table-bordered align-middle">
+                    @include('partials.table_header', ['document' => $document, 'columns' => 'reviewer'])
                     <tbody>
-                        @forelse ($batangtubuh as $index => $p)
+                        @forelse ($content as $index => $p)
                             @php
                                 $responds = $p->respond;
-                                $rowspan = $responds->count() ?: 1;
+                                $rowspan = max($responds->count(), 1);
                                 $now = now();
                                 $reviewDeadline = $document->review_due_date && $document->review_due_time
                                     ? \Carbon\Carbon::parse($document->review_due_date . ' ' . $document->review_due_time)
                                     : null;
                                 $canReview = !$reviewDeadline || $now->lte($reviewDeadline);
-                                $role = auth()->user()->getRoleNames()->first();
                             @endphp
 
+                            {{-- Jika ada tanggapan --}}
                             @if ($responds->isNotEmpty())
                                 @foreach ($responds as $rIndex => $respond)
-                                <tr>
-                                    @if ($rIndex === 0)
-                                        <td rowspan="{{ $rowspan }}">{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
-                                        <td rowspan="{{ $rowspan }}">{{ $p->batang_tubuh }}</td>
-                                        <td rowspan="{{ $rowspan }}">
-                                            @if ($p->penjelasan && $p->gambar)
-                                            <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
-                                            <br><p>{{ $p->penjelasan }}</p>
-                                            @elseif ($p->gambar)
-                                            <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
-                                            @elseif ($p->penjelasan)
-                                            <p>{{ $p->penjelasan }}</p>
+                                    <tr>
+                                        @if ($rIndex === 0)
+                                            <td class="text-justify" rowspan="{{ $rowspan }}">{{ $p->contents }}</td>
+                                            <td class="text-justify" rowspan="{{ $rowspan }}">
+                                                @include('partials.content_detail', ['p' => $p])
+                                            </td>
+                                        @endif
+
+                                        {{-- kolom tanggapan --}}
+                                        <td class="text-justify">
+                                            @if ($respond->is_deleted)
+                                                <del>{{ json_decode($respond->original_data)->tanggapan ?? '-' }}</del>
+                                                <!--<br><small>(Dihapus oleh reviewer)</small>-->
                                             @else
-                                                <p><em>Tidak ada penjelasan atau gambar.</em></p>
-                                            @endif  
-                                        </td>
-                                    @endif
-
-                                    {{-- Tanggapan --}}
-                                    <td>
-                                        @if ($respond->is_deleted)
-                                            <del class="muted">{{ json_decode($respond->original_data)->tanggapan ?? '-' }} </del>
-                                            <br>(Dihapus oleh reviewer)
-                                        @else
-                                            {{ $respond->tanggapan ?? '-' }}
-                                            @if ($respond->original_data)
-                                                <br>
-                                                <small class="text-muted">
-                                                    <i>(Sebelum revisi: {{ json_decode($respond->original_data)->tanggapan ?? '-' }})</i>
-                                                </small>
+                                                {{ $respond->tanggapan ?? '-' }}
+                                                <!--@if ($respond->original_data)-->
+                                                <!--    <br><small class="text-muted"><i>(Sebelum revisi: {{ json_decode($respond->original_data)->tanggapan ?? '-' }})</i></small>-->
+                                                <!--@endif-->
                                             @endif
-                                        @endif
-                                    </td>
+                                        </td>
 
-                                    <td>{{ $respond->pic->name ?? '-' }}</td>
-                                    <td>{{ $respond->perusahaan ?? '-' }}</td>
-                                    <td>{{ $respond->reviewer->name ?? '-' }}</td>
-                                    <td>
-                                        @if ($respond->alasan)
-                                            <span class="text-danger">{{ $respond->alasan }}</span>
-                                        @else
-                                            -
-                                        @endif
-                                    </td>
+                                        <td class="text-center">{{ $respond->pic->name ?? '-' }}</td>
+                                        <td class="text-center">{{ $respond->perusahaan ?? '-' }}</td>
 
-                                    @if ($role === 'Reviewer')
+                                        {{-- Kolom reviewer --}}
                                         <td>
-                                            @if (!$respond->is_deleted && $canReview)
-                                                <a href="{{ route('tanggapan.final.edit', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}" class="btn btn-sm btn-warning">Review</a>
-                                                <button type="button"
-                                                    class="btn btn-sm btn-danger"
-                                                    onclick="hapusTanggapan('{{ route('tanggapan.final.destroy', ['document' => $document->slug, 'batangtubuh' => $p->id, 'respond' => $respond->id]) }}')">
-                                                    Hapus
+                                            @if ($respond->histories->count())
+                                                <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#historyModal{{ $respond->id }}">
+                                                    <i class="fas fa-history"></i> History Reviewer
                                                 </button>
-                                            @elseif (!$canReview)
-                                                <span class="badge bg-secondary">Waktu Review Habis</span>
+                                            @elseif ($respond->is_deleted)
+                                                <span class="badge bg-danger">Sudah Dihapus</span>
+                                            @else
+                                                {{ $respond->reviewer->name ?? '-' }}
                                             @endif
                                         </td>
-                                    @endif
-                                </tr>
+
+                                        <td class="text-justify">{{ $respond->alasan ?: '-' }}</td>
+
+                                        {{-- kolom aksi reviewer --}}
+                                        @if (auth()->user()->hasRole('Reviewer'))
+                                            @include('partials.reviewer_action', [
+                                                'respond' => $respond,
+                                                'document' => $document,
+                                                'p' => $p,
+                                                'canReview' => $canReview
+                                            ])
+                                        @endif
+                                    </tr>
                                 @endforeach
                             @else
-                                {{-- batangtubuh tanpa tanggapan --}}
+                                {{-- jika belum ada tanggapan sama sekali --}}
                                 <tr>
-                                    <td>{{ ($batangtubuh->currentPage() - 1) * $batangtubuh->perPage() + $index + 1 }}</td>
-                                    <td>{{ $p->batang_tubuh }}</td>
-                                    <td>
-                                        @if ($p->penjelasan && $p->gambar)
-                                        <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
-                                        <br><p>{{ $p->penjelasan }}</p>
-                                        @elseif ($p->gambar)
-                                        <img src="{{ asset('storage/' . $p->gambar) }}" class="img-fluid" alt="Gambar Penjelasan">
-                                        @elseif ($p->penjelasan)
-                                        <p>{{ $p->penjelasan }}</p>
-                                        @else
-                                        <p><em>Tidak ada penjelasan atau gambar.</em></p>
-                                        @endif    
-                                    </td>
-                                    <td colspan="5" class="text-center">Belum ada tanggapan.</td>
-                                    @if ($role === 'Reviewer')
-                                        <td>
-                                            @if ($canReview)
-                                                <span class="badge bg-info">Menunggu Tanggapan</span>
-                                            @else
-                                                <span class="badge bg-secondary">Waktu Review Habis</span>
-                                            @endif
+                                    <td class="text-justify">{{ $p->contents }}</td>
+                                    <td class="text-justify">@include('partials.content_detail', ['p' => $p])</td>
+                                    <td colspan="5" class="text-center text-muted">Belum ada tanggapan</td>
+                                    @if (auth()->user()->hasRole('Reviewer'))
+                                        <td class="text-center">
+                                            <span class="badge bg-{{ $canReview ? 'info' : 'secondary' }}">
+                                                {{ $canReview ? 'Menunggu Tanggapan' : 'Waktu Review Habis' }}
+                                            </span>
                                         </td>
                                     @endif
                                 </tr>
                             @endif
                         @empty
-                            <tr>
-                                <td colspan="9" class="text-center">Tidak ada batang tubuh ditemukan.</td>
-                            </tr>
+                            <tr><td colspan="9" class="text-center">Tidak ada data ditemukan.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
 
+                {{-- Modal history reviewer --}}
+                @foreach ($content as $p)
+                    @foreach ($p->respond as $respond)
+                        @if ($respond->histories->count())
+                            @include('partials.history_modal', ['respond' => $respond])
+                        @endif
+                    @endforeach
+                @endforeach
+
+                {{-- Pagination --}}
                 <div class="mt-3">
-                    {{ $batangtubuh->links('pagination::bootstrap-4') }}
+                    {{ $content->links('pagination::bootstrap-4') }}
                 </div>
             </div>
         </div>

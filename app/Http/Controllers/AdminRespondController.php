@@ -2,23 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PicNoRespond;
 use App\Models\Respond;
+use App\Models\PicNoRespond;
+use App\Models\Document;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 
 class AdminRespondController extends Controller
 {
-    public function today()
+    public function today(Document $document)
     {
-        $tanggapanHariIni = Respond::with(['document', 'batangtubuh', 'pic'])
+        $tanggapanHariIni = Respond::with(['document', 'content', 'pic'])
             ->whereDate('created_at', Carbon::today())
             ->whereNotNull('tanggapan')
             ->get();
 
-        return view('respond.today', compact('tanggapanHariIni'));
+        return view('respond.today', compact('tanggapanHariIni', 'document'));
     }
-
+    
     public function picNoRespond(Request $request)
     {
         $query = PicNoRespond::with(['pic', 'document']);

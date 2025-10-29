@@ -11,9 +11,10 @@ class Respond extends Model
 
     protected $guarded = ['id'];
 
-    public function batangtubuh()
+    /** Relationships */
+    public function content()
     {
-        return $this->belongsTo(Batangtubuh::class);
+        return $this->belongsTo(Content::class, 'content_id');
     }
 
     public function document()
@@ -31,19 +32,24 @@ class Respond extends Model
         return $this->belongsTo(User::class, 'reviewer_id');
     }
 
-    public function getReviewerNameAttribute()
+    public function histories()
     {
-        return $this->reviewer ? $this->reviewer->name : '-';
+        return $this->hasMany(RespondHistory::class);
     }
 
+    /** Accessors */
     public function getPicNameAttribute()
     {
-        return $this->pic ? $this->pic->name : '-';
+        return $this->pic->name ?? '-';
     }
 
-    // Ambil nama perusahaan yang terkait dengan PIC
-    public function perusahaan()
+    public function getReviewerNameAttribute()
     {
-        return $this->pic->perusahaan; // Anggap perusahaan ada di kolom 'perusahaan' milik User
+        return $this->reviewer->name ?? '-';
+    }
+
+    public function getPerusahaanAttribute()
+    {
+        return $this->pic->company_name ?? '-';
     }
 }

@@ -3,49 +3,52 @@
 namespace App\Http\Controllers;
 
 use App\Exports\LaporanExport;
-use App\Models\Batangtubuh;
+use App\Models\Content;
 use App\Models\Document;
 use App\Models\Respond;
-use Barryvdh\Snappy\Facades\SnappyPdf as PDF;
+use Barryvdh\Snappy\Facades\SnappyPdf;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
-
     public function index(Request $request)
     {
         $documents = Document::orderBy('created_at', 'desc')->get();
-        $selectedDocument = null;
+    
+        // gunakan nama $document agar konsisten dengan view
+        $document = null;
         $jenis = null;
         $result = collect();
-
+    
         if ($request->has(['document', 'type'])) {
-            $selectedDocument = Document::find($request->document);
+            $document = Document::find($request->document);
             $jenis = $request->type;
-
-            if ($selectedDocument) {
-                $query = Batangtubuh::with(['respond' => function ($q) use ($jenis) {
-                        if ($jenis === 'final') {
-                            $q->where('is_deleted', false);
-                        }
-                        $q->with(['pic', 'reviewer']);
-                    }])
-                    ->where('doc_id', $selectedDocument->id);
-
+    
+            if ($document) {
+                $query = Content::with(['respond' => function ($q) use ($jenis) {
+                    $q->with(['pic', 'reviewer', 'histories.reviewer']); // <--- tambahkan histories
+                    if ($jenis === 'final') {
+                        $q->where('is_deleted', false);
+                    }
+                }])
+                ->where('doc_id', $document->id);
+    
                 if ($request->filled('search')) {
                     $search = $request->search;
                     $query->where(function ($q) use ($search) {
-                        $q->where('batang_tubuh', 'like', "%$search%")
-                        ->orWhere('penjelasan', 'like', "%$search%");
+                        $q->where('contents', 'like', "%$search%")
+                          ->orWhere('penjelasan', 'like', "%$search%");
                     });
                 }
-
+    
+                // gunakan paginate agar view pagination tetap berfungsi
                 $result = $query->orderBy('id')->paginate(10)->withQueryString();
             }
         }
-
-        return view('report.index', compact('documents', 'selectedDocument', 'jenis', 'result'));
+    
+        // kirim variabel dengan nama yang view pakai: documents, document, jenis, result
+        return view('report.index', compact('documents', 'document', 'jenis', 'result'));
     }
 
     public function export(Request $request)
@@ -90,7 +93,7 @@ class ReportController extends Controller
         }
     
         if ($request->format === 'pdf') {
-            $pdf = \Barryvdh\Snappy\Facades\SnappyPdf::loadView('report.export_pdf', [
+            $pdf = SnappyPdf::loadView('report.export_pdf', [
             'result' => $merged,
             'document' => $document,
             'jenis' => $jenis
@@ -106,4 +109,6 @@ class ReportController extends Controller
         return $pdf->stream('laporan_' . $document->slug . '.pdf');
         }
     }
+    
+    
 }

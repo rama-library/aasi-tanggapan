@@ -5,7 +5,7 @@ use App\Http\Controllers\{
     AuthController, HomeController, ProfileController,
     RespondController, ReportController,
     AdminAccountController, AdminDocumentController,
-    AdminBatangTubuhController, AdminDocumentTypeController, AdminPermissionController,
+    AdminBatangTubuhController, AdminContentController, AdminDocumentTypeController, AdminPermissionController,
     AdminRespondController, AdminRoleController
 };
 
@@ -30,47 +30,47 @@ Route::middleware(['auth'])->group(function () {
     Route::put('/change-password', [ProfileController::class, 'updatePassword'])->name('password.update.self');
 
     // Tanggapan Berlangsung & Final (View)
-    Route::prefix('tanggapan-berlangsung')->name('tanggapan.berlangsung')->group(function () {
+    Route::prefix('berikan-tanggapan')->name('berikan.tanggapan')->group(function () {
         Route::get('/', [RespondController::class, 'indexBerlangsung'])->name('');
         Route::get('/{document:slug}/detail', [RespondController::class, 'show'])->name('.detail');
     });
 
-    Route::prefix('tanggapan-final')->name('tanggapan.final')->group(function () {
+    Route::prefix('tanggapan-selesai')->name('tanggapan.selesai')->group(function () {
         Route::get('/', [RespondController::class, 'indexFinal'])->name('');
         Route::get('/{document:slug}/detail', [RespondController::class, 'showFinal'])->name('.detail');
     });
 
     // Menu Laporan
-    Route::prefix('laporan')->name('laporan.')->group(function () {
+    Route::prefix('rekap')->name('laporan.')->group(function () {
         Route::get('/', [ReportController::class, 'index'])->name('index');
         Route::get('/export', [ReportController::class, 'export'])->name('export');
     });
-
+    
     Route::post('/respond/no-respond/{document}', [RespondController::class, 'noRespond'])
     ->name('respond.noRespond')
     ->middleware('role:PIC');
+
 
     /*
     |--------------------------------------------------------------------------
     | Role-based Routes
     |--------------------------------------------------------------------------
     */
-    Route::middleware(['role:PIC|Reviewer'])->prefix('tanggapan-berlangsung/{document:slug}/batangtubuh/{batangtubuh}')->group(function () {
+    Route::middleware(['role:PIC|Reviewer'])->prefix('berikan-tanggapan/{document:slug}/content/{content}')->group(function () {
         Route::get('/create', [RespondController::class, 'create'])->name('respond.create');
         Route::post('/', [RespondController::class, 'store'])->name('respond.store');
         Route::get('/respond/{respond}/edit', [RespondController::class, 'edit'])->name('respond.edit');
         Route::put('/respond/{respond}', [RespondController::class, 'update'])->name('respond.update');
+        Route::delete('/respond/{respond}', [RespondController::class, 'destroy'])->name('respond.destroy');
     });
 
     Route::middleware(['role:Reviewer'])->group(function () {
-        // Delete di Berlangsung
-        Route::delete('tanggapan-berlangsung/{document:slug}/batangtubuh/{batangtubuh}/respond/{respond}', [RespondController::class, 'destroy'])->name('respond.destroy');
 
         // Edit di Final
-        Route::prefix('tanggapan-final/{document:slug}/batangtubuh/{batangtubuh}/respond/{respond}')->group(function () {
-            Route::get('/edit', [RespondController::class, 'edit'])->name('tanggapan.final.edit');
-            Route::put('/', [RespondController::class, 'update'])->name('tanggapan.final.update');
-            Route::delete('/', [RespondController::class, 'destroy'])->name('tanggapan.final.destroy');
+        Route::prefix('tanggapan-selesai/{document:slug}/content/{content}/respond/{respond}')->group(function () {
+            Route::get('/edit', [RespondController::class, 'edit'])->name('tanggapan.selesai.edit');
+            Route::put('/', [RespondController::class, 'update'])->name('tanggapan.selesai.update');
+            Route::delete('/', [RespondController::class, 'destroy'])->name('tanggapan.selesai.destroy');
         });
     });
 
@@ -83,30 +83,31 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('permissions', AdminPermissionController::class)->except(['show']);
         Route::resource('roles', AdminRoleController::class)->except(['show']);
         Route::resource('users', AdminAccountController::class)->except(['show']);
-
+        // routes/web.php inside admin group
         Route::resource('document-types', AdminDocumentTypeController::class)->except(['show']);
 
         // Custom user password routes
         Route::get('users/{user}/change-password', [AdminAccountController::class, 'changePassword'])->name('users.change-password');
         Route::put('users/{user}/update-password', [AdminAccountController::class, 'updatePassword'])->name('users.update-password');
 
-        // Dokumen dan batangtubuh
+        // Dokumen dan content
         Route::get('documents/checkSlug', [AdminDocumentController::class, 'checkSlug'])->name('documents.checkSlug');
         Route::resource('documents', AdminDocumentController::class);
 
-        Route::prefix('documents/{document:slug}/batangtubuh')->group(function () {
-            Route::get('/', [AdminBatangTubuhController::class, 'index'])->name('batangtubuh.index');
-            Route::get('/create', [AdminBatangTubuhController::class, 'create'])->name('batangtubuh.create');
-            Route::post('/', [AdminBatangTubuhController::class, 'store'])->name('batangtubuh.store');
-            Route::get('/{batangtubuh}/edit', [AdminBatangTubuhController::class, 'edit'])->name('batangtubuh.edit');
-            Route::put('/{batangtubuh}', [AdminBatangTubuhController::class, 'update'])->name('batangtubuh.update');
-            Route::get('/{batangtubuh}', [AdminBatangTubuhController::class, 'show'])->name('batangtubuh.show');
+        Route::prefix('documents/{document:slug}/content')->group(function () {
+            Route::get('/', [AdminContentController::class, 'index'])->name('content.index');
+            Route::get('/create', [AdminContentController::class, 'create'])->name('content.create');
+            Route::post('/', [AdminContentController::class, 'store'])->name('content.store');
+            Route::get('/{content}/edit', [AdminContentController::class, 'edit'])->name('content.edit');
+            Route::put('/{content}', [AdminContentController::class, 'update'])->name('content.update');
+            Route::get('/{content}', [AdminContentController::class, 'show'])->name('content.show');
         });
 
-        Route::delete('batangtubuh/{batangtubuh}', [AdminBatangTubuhController::class, 'destroy'])->name('batangtubuh.destroy');
+        Route::delete('content/{content}', [AdminContentController::class, 'destroy'])->name('content.destroy');
 
         // Statistik respond
         Route::get('responds/today', [AdminRespondController::class, 'today'])->name('responds.today');
         Route::get('picnorespond', [AdminRespondController::class, 'picNoRespond'])->name('picnorespond');
-    });
+
+        });
 });
