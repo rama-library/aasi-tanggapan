@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Batangtubuh;
 use App\Models\Document;
+use App\Models\PicNoRespond;
 use App\Models\Respond;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -172,6 +173,35 @@ class RespondController extends Controller
         ]);
 
         return $this->successRedirect($document->slug, 'Tanggapan berhasil dihapus.');
+    }
+
+    public function noRespond(Document $document)
+    {
+        $user = auth()->user();
+    
+        // Cegah duplikat
+        $exists = PicNoRespond::where('document_id', $document->id)
+                    ->where('pic_id', $user->id)
+                    ->exists();
+    
+        if ($exists) {
+            return response()->json([
+                'status' => 'warning',
+                'message' => 'Anda sudah menandai tidak ada tanggapan untuk dokumen ini.'
+            ]);
+        }
+    
+        PicNoRespond::create([
+            'document_id' => $document->id,
+            'pic_id' => $user->id,
+            'perusahaan' => $user->company_name ?? '-',
+            'department' => $user->department ?? '-',
+        ]);
+    
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Data berhasil disimpan. Anda telah menandai tidak ada tanggapan.'
+        ]);
     }
 
     /* ========== Helper Functions ========== */

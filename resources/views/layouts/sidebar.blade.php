@@ -24,6 +24,11 @@
                     <i class="align-middle" data-feather="message-square"></i> <span class="align-middle">Tanggapan Hari Ini</span>
                 </a>
             </li>
+            <li class="sidebar-item {{ request()->routeIs('admin.picnorespond') ? 'active' : '' }}">
+                <a class="sidebar-link" href="{{ route('admin.picnorespond') }}">
+                    <i class="align-middle" data-feather="x-square"></i> <span class="align-middle">PIC No Respond</span>
+                </a>
+            </li>
             <li class="sidebar-item {{ Request::routeIs('laporan.*') ? 'active' : '' }}">
                 <a class="sidebar-link" href="{{ route('laporan.index') }}">
                     <i class="align-middle" data-feather="download"></i> <span class="align-middle">Laporan</span>

@@ -46,6 +46,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/export', [ReportController::class, 'export'])->name('export');
     });
 
+    Route::post('/respond/no-respond/{document}', [RespondController::class, 'noRespond'])
+    ->name('respond.noRespond')
+    ->middleware('role:PIC');
+
     /*
     |--------------------------------------------------------------------------
     | Role-based Routes
@@ -101,5 +105,6 @@ Route::middleware(['auth'])->group(function () {
 
         // Statistik respond
         Route::get('responds/today', [AdminRespondController::class, 'today'])->name('responds.today');
+        Route::get('picnorespond', [AdminRespondController::class, 'picNoRespond'])->name('picnorespond');
     });
 });
