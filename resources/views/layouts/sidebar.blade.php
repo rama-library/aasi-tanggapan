@@ -14,6 +14,11 @@
             <li class="sidebar-header">
                 Manajemen Tanggapan
             </li>
+             <li class="sidebar-item {{ Request::routeIs('admin.document-types.*') ? 'active' : '' }}">
+                <a class="sidebar-link" href="{{ route('admin.document-types.index') }}">
+                    <i class="align-middle" data-feather="file"></i> <span class="align-middle">Jenis Dokumen</span>
+                </a>
+            </li>
             <li class="sidebar-item {{ Request::routeIs('admin.documents.*') ? 'active' : '' }}">
                 <a class="sidebar-link" href="{{ route('admin.documents.index') }}">
                     <i class="align-middle" data-feather="file"></i> <span class="align-middle">Dokumen & Batang Tubuh</span>

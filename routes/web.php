@@ -5,7 +5,7 @@ use App\Http\Controllers\{
     AuthController, HomeController, ProfileController,
     RespondController, ReportController,
     AdminAccountController, AdminDocumentController,
-    AdminBatangTubuhController, AdminPermissionController,
+    AdminBatangTubuhController, AdminDocumentTypeController, AdminPermissionController,
     AdminRespondController, AdminRoleController
 };
 
@@ -83,6 +83,8 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('permissions', AdminPermissionController::class)->except(['show']);
         Route::resource('roles', AdminRoleController::class)->except(['show']);
         Route::resource('users', AdminAccountController::class)->except(['show']);
+
+        Route::resource('document-types', AdminDocumentTypeController::class)->except(['show']);
 
         // Custom user password routes
         Route::get('users/{user}/change-password', [AdminAccountController::class, 'changePassword'])->name('users.change-password');
